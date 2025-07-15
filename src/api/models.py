@@ -83,7 +83,7 @@ class Activities(db.Model):
     __tablename__ = 'activities' #nombre de la tabla
     id = db.Column(db.Integer, primary_key=True) #Identificador unico
     trip_id = db.Column(db.Integer, db.ForeignKey('trips.id')) #contector de una tabla a otra
-    trip_to = db.relationship('trips', foreign_keys=[trip_id], backref=db.backref('activities_to', lazy='select'))
+    trip_to = db.relationship(Trips, foreign_keys=[trip_id], backref=db.backref('activities_to', lazy='select'))
     title = db.Column(db.String, nullable=False)
     type = db.Column(db.String, nullable=False)
     company = db.Column(db.String)

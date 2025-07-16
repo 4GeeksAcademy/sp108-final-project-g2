@@ -8,6 +8,8 @@ db = SQLAlchemy()
 
 
 class Users(db.Model):
+    __tablename__ = 'users'
+
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(80), unique=False, nullable=False)
@@ -20,20 +22,17 @@ class Users(db.Model):
         return f"<User {self.id} - {self.email}>"
 
     def serialize(self):
-        # do not serialize the password, its a security breach
-
         return {"id": self.id,
                 "email": self.email, 
                 "is_active": self.is_active,
                 "role": self.role,
                 "first_name": self.first_name,
                 "last_name": self.last_name,
-                "role": self.role}
-    
-    
-""" class UserRole(enum.Enum):
-    admin = "admin"
-    user = "user" """
+                "role": self.role,
+                "user_trips": [row.serialize()["user_id"] for row in self.user_trip_to],
+                "admin_trips": [row.serialize()["user_id"] for row in self.admin_trip_to],
+                "user_media": [row.serialize()["user_id"] for row in self.user_media_to]}
+
 
 class Trips(db.Model):
     __tablename__ = 'trips'
@@ -76,11 +75,10 @@ class UserTrips(db.Model):
             'trip_id': self.trip_id
         }
 
-   
-
 
 class Activities(db.Model):
     __tablename__ = 'activities' #nombre de la tabla
+
     id = db.Column(db.Integer, primary_key=True) #Identificador unico
     trip_id = db.Column(db.Integer, db.ForeignKey('trips.id')) #contector de una tabla a otra
     trip_to = db.relationship(Trips, foreign_keys=[trip_id], backref=db.backref('activities_to', lazy='select'))
@@ -94,8 +92,6 @@ class Activities(db.Model):
     notes = db.Column(db.Text)  # Nota libre sobre la actividad
     created_at = db.Column(db.DateTime, default=datetime.utcnow) # Fecha automática cuando se crea el registro
 
-
-     # Método para convertir la actividad en JSON
     def serialize(self):
         return {
             "id": self.id,
@@ -110,20 +106,23 @@ class Activities(db.Model):
             "created_at": self.created_at
         }
     
+
 class ActivitiesHistory(db.Model):
     __tablename__='activities_history'
+
     id = db.Column(db.Integer, primary_key=True)
-    medium_url = db.Column(db.String, nullable=False) # URL del archivo
+    media_url = db.Column(db.String, nullable=False) # URL del archivo
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_media_to = db.relationship('Users', foreign_keys=[user_id], backref=db.backref('user_media_to', lazy='select'))
     activity_id = db.Column(db.Integer, db.ForeignKey('activities.id')) # Actividad a la que pertenece este archivo
-    activity_to = db.relationship('Activities', foreign_keys=[activity_id], backref=db.backref('media_to', lazy='select'))
-    create_at_ = db.Column(db.DateTime, default=datetime.utcnow) # Fecha automática cuando se crea el registro , Si no se proporciona manualmente, se asigna automáticamente con la hora actual en formato UTC
+    activity_to = db.relationship('Activities', foreign_keys=[activity_id], backref=db.backref('activity_to', lazy='select'))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow) # Fecha automática cuando se crea el registro , Si no se proporciona manualmente, se asigna automáticamente con la hora actual en formato UTC
 
     def serialize(self):
         return {
             "id": self.id,
-            "medium_url": self.medium_url,
+            "media_url": self.media_url,
+            "user_id": self.user_id,
             "activity_id": self.activity_id,
-            "role_id": self.role_id,
-            "created_at": self.created_at
-        }
+            "created_at": self.created_at}
     

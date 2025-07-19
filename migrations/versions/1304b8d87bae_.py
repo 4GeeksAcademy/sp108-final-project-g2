@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 61ebe4726f84
+Revision ID: 1304b8d87bae
 Revises: 
-Create Date: 2025-07-15 19:28:01.175412
+Create Date: 2025-07-19 08:36:08.496483
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '61ebe4726f84'
+revision = '1304b8d87bae'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -25,13 +25,13 @@ def upgrade():
     sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('first_name', sa.String(), nullable=True),
     sa.Column('last_name', sa.String(), nullable=True),
-    sa.Column('role', sa.Enum('admin', 'user', name='user_role'), nullable=False),
+    sa.Column('role', sa.Enum('admin', 'user', name='role'), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )
     op.create_table('trips',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('title', sa.String(length=100), nullable=True),
     sa.Column('start_date', sa.Date(), nullable=True),
     sa.Column('end_date', sa.Date(), nullable=True),
@@ -56,7 +56,7 @@ def upgrade():
     )
     op.create_table('user_trips',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('trip_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['trip_id'], ['trips.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
@@ -64,9 +64,9 @@ def upgrade():
     )
     op.create_table('activities_history',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('medium_url', sa.String(), nullable=False),
+    sa.Column('media_url', sa.String(), nullable=False),
     sa.Column('activity_id', sa.Integer(), nullable=True),
-    sa.Column('create_at_', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['activity_id'], ['activities.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

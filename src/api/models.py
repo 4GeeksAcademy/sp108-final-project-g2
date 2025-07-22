@@ -18,16 +18,24 @@ class Users(db.Model):
     def __repr__(self):
         return f"<User {self.id} - {self.email}>"
 
-    def serialize(self):
+    def serialize_relationships(self):
         return {"id": self.id,
                 "email": self.email,
                 "is_active": self.is_active,
                 "role": self.role,
                 "first_name": self.first_name,
                 "last_name": self.last_name,
-                "role": self.role,
                 "trips": [row.serialize() for row in self.trips]}
-
+        
+                
+    def serialize(self):
+        return {"id": self.id,
+                "email": self.email,
+                "is_active": self.is_active,
+                "first_name": self.first_name,
+                "last_name": self.last_name,
+                "role": self.role,}
+                
 
 class Trips(db.Model):
     __tablename__ = 'trips'

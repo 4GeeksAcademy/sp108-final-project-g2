@@ -32,7 +32,6 @@ class Users(db.Model):
         return {"id": self.id,
                 "email": self.email,
                 "is_active": self.is_active,
-                "role": self.role,
                 "first_name": self.first_name,
                 "last_name": self.last_name,
                 "role": self.role,}

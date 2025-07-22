@@ -365,6 +365,4 @@ def handle_trip(trip_id):
         response_body["result"] = None
         response_body["message"] = f"Trip {trip.title} deleted successfully"
         return jsonify(response_body), 200
-
-
-
+    

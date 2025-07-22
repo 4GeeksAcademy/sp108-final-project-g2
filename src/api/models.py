@@ -13,8 +13,6 @@ class Users(db.Model):
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
     first_name = db.Column(db.String(), unique=False, nullable=True)
     last_name = db.Column(db.String(), unique=False, nullable=True)
-    role = db.Column(db.Enum("admin", "user", name="role"),
-                     unique=False, nullable=False)
 
     def __repr__(self):
         return f"<User {self.id} - {self.email}>"

@@ -14,43 +14,6 @@ from flask_jwt_extended import get_jwt
 
 api = Blueprint('api', __name__)
 CORS(api)  # Allow CORS requests to this API
-    response_body = {}
-    claims = get_jwt()
-    user = db.session.execute(
-        db.select(Users).where(Users.id == user_id)).scalar()
-    if not user:
-        response_body["result"] = None
-        response_body["message"] = f"User {user_id} not found"
-        return jsonify(response_body), 404
-    if request.method == "GET":
-        response_body["result"] = user.serialize()
-        response_body["message"] = f"User {user.id} got successfully"
-        return jsonify(response_body), 200
-    if request.method == "PUT":
-        if claims["user_id"] != user_id:
-            response_body["message"] = f"User {claims["user_id"]} is not allowed to put user {user_id}"
-            response_body["result"] = None
-            return jsonify(response_body), 403
-        data_input = request.json
-        user.email = data_input.get("email", user.email)
-        user.password = data_input.get("password", user.password)
-        # user.is_active = True
-        user.first_name = data_input.get("first_name", user.first_name)
-        user.last_name = data_input.get("last_name", user.last_name)
-        db.session.commit()
-        response_body["result"] = user.serialize()
-        response_body["message"] = f"User {user.id} put successfully"
-        return jsonify(response_body), 200
-    if request.method == "DELETE":
-        if claims["user_id"] != user_id:
-            response_body["message"] = f"User {claims["user_id"]} is not allowed to delete user {user_id}"
-            response_body["result"] = None
-            return jsonify(response_body), 403
-        user.is_active = False
-        db.session.commit()
-        response_body["result"] = None
-        response_body["message"] = f"User {user.id} deleted successfully"
-        return jsonify(response_body), 200
 
 
 @api.route("/user-trips", methods=["GET", "POST"])

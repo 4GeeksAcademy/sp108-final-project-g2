@@ -11,107 +11,9 @@ from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt
 
+
 api = Blueprint('api', __name__)
 CORS(api)  # Allow CORS requests to this API
-
-
-@api.route("/signup", methods=["POST"])
-def register():
-    response_body = {}
-    user_to_post = request.json
-    user = Users()
-    user.email = user_to_post.get("email").lower()
-    existing_user = db.session.execute(
-        db.select(Users).where(Users.email == user.email)).scalar()
-    if existing_user:
-        response_body["results"] = None
-        response_body["message"] = f"Email address {user.email} is already been used"
-        return jsonify(response_body), 409
-    user.password = user_to_post.get("password")
-    user.is_active = user_to_post.get("is_active")
-    user.is_admin = user_to_post.get("is_admin")
-    user.first_name = user_to_post.get("first_name")
-    user.last_name = user_to_post.get("last_name")
-    db.session.add(user)
-    db.session.commit()
-
-    claims = {"user_id": user.id,
-              "email": user.email,
-              "is_active": user.is_active,
-              "is_admin": user.is_admin,
-              "first_name": user.first_name,
-              "last_name": user.last_name,
-              "followers": [row.serialize()["follower_id"] for row in user.following_to],
-              "following": [row.serialize()["following_id"] for row in user.follower_to]}
-    access_token = create_access_token(
-        identity=user.email, additional_claims=claims)
-
-    response_body["results"] = user.serialize()
-    response_body["access_token"] = access_token
-    response_body["message"] = f"User {user.id} posted successfully"
-    return jsonify(response_body), 201
-
-
-# Login access token
-@api.route("/login", methods=["POST"])
-def login():
-    response_body = {}
-    user_to_login = request.json
-    email = user_to_login.get("email", None).lower()
-    password = user_to_login.get("password", None)
-    user = db.session.execute(db.select(Users).where(Users.email == email,
-                                                     Users.password == password,
-                                                     Users.is_active == True)).scalar()
-
-    if not user:
-        response_body["message"] = "Bad email or password"
-        return jsonify(response_body), 401
-
-    claims = {"user_id": user.id,
-              "email": user.email,
-              "is_active": user.is_active,
-              "is_admin": user.is_admin,
-              "first_name": user.first_name,
-              "last_name": user.last_name,
-              "followers": [row.serialize()["follower_id"] for row in user.following_to],
-              "following": [row.serialize()["following_id"] for row in user.follower_to]}
-    access_token = create_access_token(
-        identity=email, additional_claims=claims)
-
-    response_body["access_token"] = access_token
-    response_body["results"] = user.serialize()
-    response_body["message"] = f"User {user.email} logged successfully"
-    return jsonify(response_body), 200
-
-
-# Protected route for users
-@api.route("/protected", methods=["GET"])
-@jwt_required()
-def protected():
-    # Access the identity of the current user with get_jwt_identity
-    response_body = {}
-    current_user = get_jwt_identity()
-    additional_claims = get_jwt()
-    response_body["current_user"] = current_user
-    response_body["additional_claims"] = additional_claims
-    return jsonify(response_body), 200
-
-
-@api.route("/users", methods=["GET", "POST"])
-def handle_users():
-    response_body = {}
-    users = db.session.execute(db.select(Users).where(
-        Users.is_active == True).order_by(asc(Users.id))).scalars()
-    results = [row.serialize() for row in users]
-    response_body["results"] = results
-    response_body["message"] = "Users got successfully"
-    status_code = 200 if results else 404
-    return jsonify(response_body), status_code
-
-
-@api.route("/users/<int:user_id>", methods=["GET", "PUT", "DELETE"])
-@jwt_required()
-def handle_user(user_id):
     response_body = {}
     claims = get_jwt()
     user = db.session.execute(
@@ -151,71 +53,99 @@ def handle_user(user_id):
         return jsonify(response_body), 200
 
 
-@api.route("/user-trips", methods=["GET"])
+@api.route("/user-trips", methods=["GET", "POST"])
 def handle_users_trips():
+    response_body = {}
+    users_trips = db.session.execute(db.select(UserTrips)).scalars()
     if request.method == "GET":
-        response_body = {}
-        users_trips = db.session.execute(db.select(UserTrips)).scalars()
         results = [row.serialize() for row in users_trips]
         response_body["results"] = results
         response_body["message"] = "User trips got successfully"
         status_code = 200 if results else 404
         return jsonify(response_body), status_code
+    if request.method == "POST":
+        data = request.json
+        user_id = data.get("user_id", None)
+        trip_id = data.get("trip_id", None)
+        user_trip = UserTrips()
+        user_trip.user_id = user_id
+        user_trip.trip_id = trip_id
+        db.session.add(user_trip)
+        db.session.commit()
+        response_body["results"] = user_trip.serialize()
+        response_body["message"] = f"User {user_trip.user_id} has been added to trip {user_trip.trip_id}"
+        return jsonify(response_body), 200
 
 
-@api.route("/user-trips/<int:user_id>", methods=["GET"])
+@api.route("/user-trips/users/<int:user_id>", methods=["GET", "DELETE"])
 def handle_user_trips(user_id):
     response_body = {}
     user_trips = db.session.execute(db.select(UserTrips).where(
-        UserTrips.user_id == user_id)).scalar()
+        UserTrips.user_id == user_id)).scalars()
+    print(user_trips)
     if not user_trips:
         response_body["result"] = None
         response_body["message"] = f"User {user_id} not found"
         return jsonify(response_body), 404
     if request.method == "GET":
-        results = user_trips.serialize()
-        response_body["results"] = results
-        response_body["message"] = f"Trips from {UserTrips.user_id} got successfully"
+        results = [row.serialize() for row in user_trips]
+        response_body["result"] = results
+        response_body["message"] = f"Trips from user {user_id} got successfully"
         status_code = 200 if results else 404
         return jsonify(response_body), status_code
-
-
-"""  response_body = {}
-    claims = get_jwt()
-    
-    if not user:
+    if request.method == "DELETE":
+        data_input = request.json
+        trip_id = data_input.get("trip_id", None)
+        if not trip_id:
+            response_body["result"] = None
+            response_body["message"] = "The trip you want to delete is missing"
+            return jsonify(response_body), 404
+        trip_exists= db.session.execute(db.select(UserTrips).where(
+        (UserTrips.user_id == user_id) & (UserTrips.trip_id == trip_id))).scalar()
+        if not trip_exists:
+            response_body["result"] = None
+            response_body["message"] = f"Trip {trip_id} does not exist"
+            return jsonify(response_body), 404
+        db.session.delete(trip_exists)
+        db.session.commit()
         response_body["result"] = None
-        response_body["message"] = f"User {user_id} not found"
+        response_body["message"] = f"Trip {trip_id} deleted successfully from user {user_id}"
+        return jsonify(response_body), 200
+
+
+@api.route("/user-trips/trips/<int:trip_id>", methods=["GET", "DELETE"])
+def handle_trip_users(trip_id):
+    response_body = {}
+    user_trips = db.session.execute(db.select(UserTrips).where(
+        UserTrips.trip_id == trip_id)).scalar()
+    if not user_trips:
+        response_body["result"] = None
+        response_body["message"] = f"Trip {trip_id} not found"
         return jsonify(response_body), 404
     if request.method == "GET":
-        response_body["result"] = user.serialize()
-        response_body["message"] = f"User {user.id} got successfully"
-        return jsonify(response_body), 200
-    if request.method == "PUT":
-        if claims["user_id"] != user_id:
-            response_body["message"] = f"User {claims["user_id"]} is not allowed to put user {user_id}"
-            response_body["result"] = None
-            return jsonify(response_body), 403
-        data_input = request.json
-        user.email = data_input.get("email", user.email)
-        user.password = data_input.get("password", user.password)
-        # user.is_active = True
-        user.first_name = data_input.get("first_name", user.first_name)
-        user.last_name = data_input.get("last_name", user.last_name)
-        db.session.commit()
-        response_body["result"] = user.serialize()
-        response_body["message"] = f"User {user.id} put successfully"
-        return jsonify(response_body), 200
+        results = user_trips.serialize_trips()
+        response_body["result"] = results
+        response_body["message"] = f"Users from trip {trip_id} got successfully"
+        status_code = 200 if results else 404
+        return jsonify(response_body), status_code
     if request.method == "DELETE":
-        if claims["user_id"] != user_id:
-            response_body["message"] = f"User {claims["user_id"]} is not allowed to delete user {user_id}"
+        data_input = request.json
+        user_id = data_input.get("user_id", None)
+        if not user_id:
             response_body["result"] = None
-            return jsonify(response_body), 403
-        user.is_active = False
+            response_body["message"] = "The user you want to delete is missing"
+            return jsonify(response_body), 404
+        user_exists= db.session.execute(db.select(UserTrips).where(
+        (UserTrips.user_id == user_id) & (UserTrips.trip_id == trip_id))).scalar()
+        if not user_exists:
+            response_body["result"] = None
+            response_body["message"] = f"User {user_id} does not exist"
+            return jsonify(response_body), 404
+        db.session.delete(user_exists)
         db.session.commit()
         response_body["result"] = None
-        response_body["message"] = f"User {user.id} deleted successfully"
-        return jsonify(response_body), 200 """
+        response_body["message"] = f"User {user_id} deleted successfully from trip {trip_id}"
+        return jsonify(response_body), 200
 
 
 @api.route("/trips", methods=["GET", "POST"])
@@ -249,7 +179,7 @@ def handle_trips():
         return jsonify(response_body), 200
 
 
-@api.route("/trips/<int:trip_id>", methods=["GET"])
+@api.route("/trips/<int:trip_id>", methods=["GET", "PUT", "DELETE"])
 def handle_trip(trip_id):
     response_body = {}
     trip = db.session.execute(db.select(Trips).where(
@@ -261,6 +191,22 @@ def handle_trip(trip_id):
     if request.method == "GET":
         results = trip.serialize_relationships()
         response_body["results"] = results
-        response_body["message"] = f"Trip {trip_id} got successfully"
+        response_body["message"] = f"Trip {trip.title} got successfully"
         status_code = 200 if results else 404
         return jsonify(response_body), status_code
+    if request.method == "PUT":
+        data_input = request.json
+        trip.title = data_input.get("title", trip.title)
+        trip.start_date = data_input.get("start_date", trip.start_date)
+        trip.end_date = data_input.get("end_date", trip.end_date)
+        trip.publicated = data_input.get("publicated", trip.publicated)
+        db.session.commit()
+        response_body["result"] = trip.serialize()
+        response_body["message"] = f"Trip {trip.title} put successfully"
+        return jsonify(response_body), 200
+    if request.method == "DELETE":
+        db.session.delete(trip)
+        db.session.commit()
+        response_body["result"] = None
+        response_body["message"] = f"Trip {trip.title} deleted successfully"
+        return jsonify(response_body), 200

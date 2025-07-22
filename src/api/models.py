@@ -90,13 +90,20 @@ class UserTrips(db.Model):
     def __repr__(self):
         return f'<user = {self.user_id} - trip = {self.trip_id}>'
 
-    def serialize_relationships(self):
+    def serialize_users(self):
         return {
             'id': self.id,
-            'user_to': self.user_to.serialize() if self.user_to else None,
+            'user_id': self.user_id,
             "trip_to": self.trip_to.serialize() if self.trip_to else None
             }
 
+    def serialize_trips(self):
+        return {
+            'id': self.id,
+            'user_to': self.user_to.serialize() if self.user_to else None,
+            "trip_id": self.trip_id
+            }
+    
     def serialize(self):
         return {
             'id': self.id,

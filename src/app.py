@@ -11,6 +11,7 @@ from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
 from flask_jwt_extended import JWTManager
+from datetime import timedelta
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../dist/')
@@ -25,6 +26,7 @@ else:
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=1)  # 24 horas
 jwt = JWTManager(app)
 
 

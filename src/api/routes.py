@@ -33,18 +33,18 @@ def get_activity_by_id(id):
 
 
 # traer lista de todas la actividades o crear una nueva 
-@api.route('/activities', methods =[ ' GET' , 'POST' ])
+@api.route('/activities', methods =[ 'GET' , 'POST' ])
 def handle_activity():
     response_body ={}
     if request.method == 'GET':
         rows =db.session.execute(db.Select(Activities)).scalars() #Consultamos todas las actividades
-        response_body['results'] = [row.serilize() for row in rows]
+        response_body['results'] = [row.serialize() for row in rows]
         response_body['message'] = 'listado de actividades'
         return response_body, 200
     if request.method == 'POST':
         data = request.get_json() #Creamos la actividad
         new = Activities(
-            trip_id =data.get('tip_id'),
+            trip_id =data.get('trip_id'),
             title=data.get('title'),
             type=data.get('type'),
             company=data.get('company'),
@@ -63,10 +63,10 @@ def handle_activity():
 
 
 @api.route('/activities/<int:id>' , methods =['PUT'])
-def uppdate_activity(id):
+def update_activity(id):
     response_boy= {}
 
-    activity = Activitites.query.get_or_404(id) #Busca id o regresa un error 404
+    activity = Activities.query.get_or_404(id) #Busca id o regresa un error 404
     data = request.get_json()
 
     #Actiliza los campos enviados en el JSON
@@ -103,11 +103,11 @@ def delete_activity(id):
 
 #Endpoints activitites media
 
-@api.route('/history-media' ,  methods = ['GET' ])
+@api.route('/history-media' ,  methods = ['GET'])
 def handle_history_media():
     response_body={}
     rows = db.session.execute(db.select(ActivitiesHistory)).scalars()
-    response_body['results'] = [row.serilize() for row in rows]
+    response_body['results'] = [row.serialize() for row in rows]
     response_body['message'] = 'Listado de las historias '
     return response_body,200
 
@@ -122,6 +122,8 @@ def get_history_media_by_id(id):
     response_body['message'] = f'Recuerdo con ID {id} encontrado correctamente'
 
     return response_body, 200
+
+    
 
 
 @api.route('/history-media' , methods = ['POST'])

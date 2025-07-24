@@ -23,7 +23,8 @@ class Users(db.Model):
                 "is_active": self.is_active,
                 "first_name": self.first_name,
                 "last_name": self.last_name,
-                "trips": [row.serialize() for row in self.trips]
+                "trip_owner": [row.serialize() for row in self.trips],
+                "trips": [row.serialize() for row in self.user_trips]
                 }
 
     def serialize(self):
@@ -33,42 +34,6 @@ class Users(db.Model):
                 "first_name": self.first_name,
                 "last_name": self.last_name,
                 }
-
-
-class Trips(db.Model):
-    __tablename__ = 'trips'
-    id = db.Column(db.Integer, primary_key=True)
-    trip_owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    trip_owner_to = db.relationship("Users", foreign_keys=[
-                                    trip_owner_id], backref=db.backref("trips", lazy="select"))
-    title = db.Column(db.String(100))
-    start_date = db.Column(db.Date)
-    end_date = db.Column(db.Date)
-    publicated = db.Column(db.Boolean, default=False)
-
-    def __repr__(self):
-        return f'<Trip {self.title}>'
-
-    def serialize_relationships(self):
-        return {
-            'id': self.id,
-            "trip_owner_to": self.trip_owner_to.serialize() if self.trip_owner_to else None,
-            'title': self.title,
-            'start_date': self.start_date,
-            'end_date': self.end_date,
-            'publicated': self.publicated,
-            "activities": [row.serialize() for row in self.activities]
-            }
-
-    def serialize(self):
-        return {
-            'id': self.id,
-            "trip_owner_id": self.trip_owner_id,
-            'title': self.title,
-            'start_date': self.start_date,
-            'end_date': self.end_date,
-            'publicated': self.publicated
-            }
 
 
 class UserTrips(db.Model):
@@ -103,6 +68,42 @@ class UserTrips(db.Model):
             'id': self.id,
             'user_id': self.user_id,
             "trip_id": self.trip_id
+            }
+    
+
+class Trips(db.Model):
+    __tablename__ = 'trips'
+    id = db.Column(db.Integer, primary_key=True)
+    trip_owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    trip_owner_to = db.relationship("Users", foreign_keys=[
+                                    trip_owner_id], backref=db.backref("trips", lazy="select"))
+    title = db.Column(db.String(100))
+    start_date = db.Column(db.Date)
+    end_date = db.Column(db.Date)
+    publicated = db.Column(db.Boolean, default=False)
+
+    def __repr__(self):
+        return f'<Trip {self.title}>'
+
+    def serialize_relationships(self):
+        return {
+            'id': self.id,
+            "trip_owner_to": self.trip_owner_to.serialize() if self.trip_owner_to else None,
+            'title': self.title,
+            'start_date': self.start_date,
+            'end_date': self.end_date,
+            'publicated': self.publicated,
+            "activities": [row.serialize() for row in self.activities]
+            }
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            "trip_owner_id": self.trip_owner_id,
+            'title': self.title,
+            'start_date': self.start_date,
+            'end_date': self.end_date,
+            'publicated': self.publicated
             }
 
 

@@ -24,7 +24,6 @@ def register():
     # Validación básica
     email = user_to_post.get("email", "").lower()
     password = user_to_post.get("password")
-    role = user_to_post.get("role", "user")
 
     if not email or not password:
         response_body["results"] = None
@@ -47,17 +46,14 @@ def register():
         is_active=True,
         first_name=user_to_post.get("first_name"),
         last_name=user_to_post.get("last_name"),
-        role=role
     )
     db.session.add(user)
     db.session.commit()
 
     # Crear claims para JWT
     claims = {
-        "user_id": user.id,
         "email": user.email,
         "is_active": user.is_active,
-        "role": user.role,
         "first_name": user.first_name,
         "last_name": user.last_name
     }
@@ -100,9 +96,8 @@ def login():
         "user_id": user.id,
         "email": user.email,
         "is_active": user.is_active,
-        "role": user.role,
         "first_name": user.first_name,
-        "last_name": user.last_name
+        "last_name": user.last_name,
     }
     access_token = create_access_token(identity=user.email, additional_claims=claims)
 
@@ -122,7 +117,7 @@ def get_users():
         db.select(Users).where(Users.is_active == True).order_by(asc(Users.id))
     ).scalars()
 
-    results = [user.serialize() for user in users]
+    results = [user.serialize_relationships() for user in users]
 
     if not results:
         response_body["results"] = None
@@ -153,7 +148,7 @@ def handle_user(user_id):
     current_user_id = claims.get("user_id")
 
     if request.method == "GET":
-        response_body["results"] = user.serialize()
+        response_body["results"] = user.serialize_relationships()
         response_body["message"] = f"User {user.id} retrieved successfully"
         return jsonify(response_body), 200
 
@@ -232,76 +227,28 @@ def handle_users_trips():
         return jsonify(response_body), 200
 
 
-@api.route("/user-trips/users/<int:user_id>", methods=["GET", "DELETE"])
-def handle_user_trips(user_id):
+@api.route("/user-trips/<int:user_trips_id>", methods=["GET", "DELETE"])
+def handle_user_trip(user_trips_id):
     response_body = {}
-    user_trips = db.session.execute(db.select(UserTrips).where(
-        UserTrips.user_id == user_id)).scalars()
-    print(user_trips)
-    if not user_trips:
+    user_trip = db.session.execute(db.select(UserTrips).where(
+        UserTrips.id == user_trips_id)).scalar()
+    if not user_trip:
         response_body["result"] = None
-        response_body["message"] = f"User {user_id} not found"
+        response_body["message"] = f"User-Trip relationship {user_trips_id} not found"
         return jsonify(response_body), 404
     if request.method == "GET":
-        results = [row.serialize() for row in user_trips]
-        response_body["result"] = results
-        response_body["message"] = f"Trips from user {user_id} got successfully"
-        status_code = 200 if results else 404
+        result = user_trip.serialize()
+        response_body["result"] = result
+        response_body["message"] = f"User-Trip relationship {user_trips_id} got successfully"
+        status_code = 200 if result else 404
         return jsonify(response_body), status_code
     if request.method == "DELETE":
-        data_input = request.json
-        trip_id = data_input.get("trip_id", None)
-        if not trip_id:
-            response_body["result"] = None
-            response_body["message"] = "The trip you want to delete is missing"
-            return jsonify(response_body), 404
-        trip_exists= db.session.execute(db.select(UserTrips).where(
-        (UserTrips.user_id == user_id) & (UserTrips.trip_id == trip_id))).scalar()
-        if not trip_exists:
-            response_body["result"] = None
-            response_body["message"] = f"Trip {trip_id} does not exist"
-            return jsonify(response_body), 404
-        db.session.delete(trip_exists)
+        db.session.delete(user_trip)
         db.session.commit()
         response_body["result"] = None
-        response_body["message"] = f"Trip {trip_id} deleted successfully from user {user_id}"
+        response_body["message"] = f"User-Trip relationship {user_trips_id} deleted successfully"
         return jsonify(response_body), 200
-
-
-@api.route("/user-trips/trips/<int:trip_id>", methods=["GET", "DELETE"])
-def handle_trip_users(trip_id):
-    response_body = {}
-    user_trips = db.session.execute(db.select(UserTrips).where(
-        UserTrips.trip_id == trip_id)).scalar()
-    if not user_trips:
-        response_body["result"] = None
-        response_body["message"] = f"Trip {trip_id} not found"
-        return jsonify(response_body), 404
-    if request.method == "GET":
-        results = user_trips.serialize_trips()
-        response_body["result"] = results
-        response_body["message"] = f"Users from trip {trip_id} got successfully"
-        status_code = 200 if results else 404
-        return jsonify(response_body), status_code
-    if request.method == "DELETE":
-        data_input = request.json
-        user_id = data_input.get("user_id", None)
-        if not user_id:
-            response_body["result"] = None
-            response_body["message"] = "The user you want to delete is missing"
-            return jsonify(response_body), 404
-        user_exists= db.session.execute(db.select(UserTrips).where(
-        (UserTrips.user_id == user_id) & (UserTrips.trip_id == trip_id))).scalar()
-        if not user_exists:
-            response_body["result"] = None
-            response_body["message"] = f"User {user_id} does not exist"
-            return jsonify(response_body), 404
-        db.session.delete(user_exists)
-        db.session.commit()
-        response_body["result"] = None
-        response_body["message"] = f"User {user_id} deleted successfully from trip {trip_id}"
-        return jsonify(response_body), 200
-
+    
 
 @api.route("/trips", methods=["GET", "POST"])
 def handle_trips():

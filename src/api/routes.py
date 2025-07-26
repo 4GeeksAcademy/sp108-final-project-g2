@@ -52,7 +52,10 @@ def register():
 
     # Crear claims para JWT
     claims = {
-        "user_id": user.id
+        "email": user.email,
+        "is_active": user.is_active,
+        "first_name": user.first_name,
+        "last_name": user.last_name
     }
     access_token = create_access_token(identity=user.email, additional_claims=claims)
 
@@ -90,7 +93,11 @@ def login():
         return jsonify(response_body), 401
 
     claims = {
-        "user_id": user.id
+        "user_id": user.id,
+        "email": user.email,
+        "is_active": user.is_active,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
     }
     access_token = create_access_token(identity=user.email, additional_claims=claims)
 
@@ -197,6 +204,7 @@ def handle_user(user_id):
     
 
 @api.route("/user-trips", methods=["GET", "POST"])
+@jwt_required()
 def handle_users_trips():
     response_body = {}
     users_trips = db.session.execute(db.select(UserTrips)).scalars()
@@ -210,14 +218,20 @@ def handle_users_trips():
         data = request.json
         user_id = data.get("user_id", None)
         trip_id = data.get("trip_id", None)
-        user_trip = UserTrips()
-        user_trip.user_id = user_id
-        user_trip.trip_id = trip_id
-        db.session.add(user_trip)
-        db.session.commit()
-        response_body["results"] = user_trip.serialize()
-        response_body["message"] = f"User {user_trip.user_id} has been added to trip {user_trip.trip_id}"
-        return jsonify(response_body), 200
+        trip = db.session.execute(db.select(Trips).where(Trips.id == trip_id)).scalar()
+        trip_owner_id = trip.trip_owner_id
+        claims = get_jwt()
+        token_user_id = claims["user_id"]
+        user_is_owner = trip_owner_id == token_user_id
+        if user_is_owner:
+            user_trip = UserTrips()
+            user_trip.user_id = user_id
+            user_trip.trip_id = trip_id
+            db.session.add(user_trip)
+            db.session.commit()
+            response_body["results"] = user_trip.serialize()
+            response_body["message"] = f"User {user_trip.user_id} has been added to trip {user_trip.trip_id}"
+            return jsonify(response_body), 200
 
 
 @api.route("/user-trips/<int:user_trips_id>", methods=["GET", "DELETE"])
@@ -244,10 +258,10 @@ def handle_user_trip(user_trips_id):
     
 
 @api.route("/trips", methods=["GET", "POST"])
+@jwt_required()
 def handle_trips():
     response_body = {}
-    trips = db.session.execute(
-        db.select(Trips).order_by(asc(Trips.start_date))).scalars()
+    trips = db.session.execute(db.select(Trips).order_by(asc(Trips.start_date))).scalars()
     if request.method == "GET":
         results = [row.serialize_relationships() for row in trips]
         response_body["results"] = results
@@ -255,8 +269,10 @@ def handle_trips():
         status_code = 200 if results else 404
         return jsonify(response_body), status_code
     if request.method == "POST":
+        claims = get_jwt()
+        token_user_id = claims["user_id"]
         data = request.json
-        trip_owner_id = data.get("trip_owner_id", None)
+        trip_owner_id = token_user_id
         title = data.get("title", None)
         start_date = data.get("start_date", None)
         end_date = data.get("end_date", None)
@@ -270,7 +286,7 @@ def handle_trips():
         db.session.add(trip)
         db.session.commit()
         response_body["results"] = trip.serialize()
-        response_body["message"] = f"User {trip_owner_id} now owns the trip {title}"
+        response_body["message"] = f"User {trip.trip_owner_id} now owns the trip {trip.title}"
         return jsonify(response_body), 200
 
 
@@ -278,44 +294,45 @@ def handle_trips():
 @jwt_required()
 def handle_trip(trip_id):
     response_body = {}
-    
-    trip = db.session.execute(db.select(Trips).where(Trips.id == trip_id)).scalar()
-    trip_owner_id = trip.trip_owner_id
-
-    claims = get_jwt()
-    token_user_id = claims["user_id"]
-
+    trip = db.session.execute(db.select(Trips).where(
+        Trips.id == trip_id)).scalar()
     if not trip:
         response_body["result"] = None
         response_body["message"] = f"Trip {trip_id} not found"
         return jsonify(response_body), 404
     if request.method == "GET":
-        results = trip.serialize_relationships()
-        response_body["results"] = results
+        if not user_is_owner:
+            trip_user = db.session.execute(db.select(UserTrips).where(UserTrips.trip_id == trip_id, 
+                                                                      UserTrips.user_id == token_user_id)).scalar()
+            if not trip_user:
+                response_body["result"] = None
+                response_body["message"] = f"User {token_user_id} is not allowed to get trip {trip_id}"
+                return jsonify(response_body), 403
+        result = trip.serialize_relationships()
+        response_body["result"] = result
         response_body["message"] = f"Trip {trip.title} got successfully"
-        status_code = 200 if results else 404
-        return jsonify(response_body), status_code
-    if request.method == "PUT":
-        if token_user_id != trip_owner_id:
-            response_body["result"] = None
-            response_body["message"] = f"Not allowed to put this trip"
-            return jsonify(response_body), 401
-        if token_user_id == trip_owner_id:
-            data_input = request.json
-            trip.title = data_input.get("title", trip.title)
-            trip.start_date = data_input.get("start_date", trip.start_date)
-            trip.end_date = data_input.get("end_date", trip.end_date)
-            trip.publicated = data_input.get("publicated", trip.publicated)
-            db.session.commit()
-            response_body["result"] = trip.serialize()
-            response_body["message"] = f"Trip {trip.title} put successfully"
-            return jsonify(response_body), 200
-    if request.method == "DELETE":
-        db.session.delete(trip)
-        db.session.commit()
-        response_body["result"] = None
-        response_body["message"] = f"Trip {trip.title} deleted successfully"
         return jsonify(response_body), 200
+    if request.method == "PUT":
+        data_input = request.json
+        trip.title = data_input.get("title", trip.title)
+        trip.start_date = data_input.get("start_date", trip.start_date)
+        trip.end_date = data_input.get("end_date", trip.end_date)
+        trip.publicated = data_input.get("publicated", trip.publicated)
+        db.session.commit()
+        response_body["result"] = trip.serialize()
+        response_body["message"] = f"Trip {trip.title} put successfully"
+        return jsonify(response_body), 200
+    if request.method == "DELETE":
+        if trip_owner_id != token_user_id:
+            response_body["result"] = None
+            response_body["message"] = f"User {token_user_id} is not allowed to delete trip {trip_id}"
+            return jsonify(response_body), 404
+        if trip_owner_id == token_user_id:
+            db.session.delete(trip)
+            db.session.commit()
+            response_body["result"] = None
+            response_body["message"] = f"Trip deleted successfully"
+            return jsonify(response_body), 200
     
 
 #Endpoints activities

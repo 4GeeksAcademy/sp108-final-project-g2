@@ -52,10 +52,7 @@ def register():
 
     # Crear claims para JWT
     claims = {
-        "email": user.email,
-        "is_active": user.is_active,
-        "first_name": user.first_name,
-        "last_name": user.last_name
+        "user_id": user.id
     }
     access_token = create_access_token(identity=user.email, additional_claims=claims)
 
@@ -93,11 +90,7 @@ def login():
         return jsonify(response_body), 401
 
     claims = {
-        "user_id": user.id,
-        "email": user.email,
-        "is_active": user.is_active,
-        "first_name": user.first_name,
-        "last_name": user.last_name,
+        "user_id": user.id
     }
     access_token = create_access_token(identity=user.email, additional_claims=claims)
 
@@ -282,10 +275,16 @@ def handle_trips():
 
 
 @api.route("/trips/<int:trip_id>", methods=["GET", "PUT", "DELETE"])
+@jwt_required()
 def handle_trip(trip_id):
     response_body = {}
-    trip = db.session.execute(db.select(Trips).where(
-        Trips.id == trip_id)).scalar()
+    
+    trip = db.session.execute(db.select(Trips).where(Trips.id == trip_id)).scalar()
+    trip_owner_id = trip.trip_owner_id
+
+    claims = get_jwt()
+    token_user_id = claims["user_id"]
+
     if not trip:
         response_body["result"] = None
         response_body["message"] = f"Trip {trip_id} not found"
@@ -297,15 +296,20 @@ def handle_trip(trip_id):
         status_code = 200 if results else 404
         return jsonify(response_body), status_code
     if request.method == "PUT":
-        data_input = request.json
-        trip.title = data_input.get("title", trip.title)
-        trip.start_date = data_input.get("start_date", trip.start_date)
-        trip.end_date = data_input.get("end_date", trip.end_date)
-        trip.publicated = data_input.get("publicated", trip.publicated)
-        db.session.commit()
-        response_body["result"] = trip.serialize()
-        response_body["message"] = f"Trip {trip.title} put successfully"
-        return jsonify(response_body), 200
+        if token_user_id != trip_owner_id:
+            response_body["result"] = None
+            response_body["message"] = f"Not allowed to put this trip"
+            return jsonify(response_body), 401
+        if token_user_id == trip_owner_id:
+            data_input = request.json
+            trip.title = data_input.get("title", trip.title)
+            trip.start_date = data_input.get("start_date", trip.start_date)
+            trip.end_date = data_input.get("end_date", trip.end_date)
+            trip.publicated = data_input.get("publicated", trip.publicated)
+            db.session.commit()
+            response_body["result"] = trip.serialize()
+            response_body["message"] = f"Trip {trip.title} put successfully"
+            return jsonify(response_body), 200
     if request.method == "DELETE":
         db.session.delete(trip)
         db.session.commit()

@@ -44,7 +44,7 @@ class UserTrips(db.Model):
                               user_id], backref=db.backref("user_trips", lazy="select"))
     trip_id = db.Column(db.Integer, db.ForeignKey('trips.id'), nullable=False)
     trip_to = db.relationship("Trips", foreign_keys=[
-                              trip_id], backref=db.backref("user_trips", lazy="select"))
+                              trip_id], backref=db.backref("user_trips", lazy="select", cascade="all, delete-orphan"))
 
     def __repr__(self):
         return f'<user = {self.user_id} - trip = {self.trip_id}>'
@@ -76,11 +76,12 @@ class Trips(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     trip_owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     trip_owner_to = db.relationship("Users", foreign_keys=[
-                                    trip_owner_id], backref=db.backref("trips", lazy="select"))
+                                    trip_owner_id], backref=db.backref("trips", lazy="select", cascade="all, delete-orphan"))
     title = db.Column(db.String(100))
     start_date = db.Column(db.Date)
     end_date = db.Column(db.Date)
     publicated = db.Column(db.Boolean, default=False)
+    # trip_exists = db.Column(db.Boolean, default=True)
 
     def __repr__(self):
         return f'<Trip {self.title}>'
@@ -113,7 +114,7 @@ class Activities(db.Model):
     trip_id = db.Column(db.Integer, db.ForeignKey(
         'trips.id'))  # contector de una tabla a otra
     trip_to = db.relationship("Trips", foreign_keys=[
-                              trip_id], backref=db.backref('activities', lazy='select'))
+                              trip_id], backref=db.backref('activities', lazy='select', cascade="all, delete-orphan"))
     title = db.Column(db.String, nullable=False)
     type = db.Column(db.String, nullable=False)
     company = db.Column(db.String)
@@ -161,8 +162,8 @@ class ActivitiesHistory(db.Model):
     __tablename__ = 'activities_history'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))  # contector de una tabla a otra
-    users_to = db.relationship("Users", foreign_keys=[
-                              user_id], backref=db.backref('activities_History', lazy='select'))
+    user_to = db.relationship("Users", foreign_keys=[
+                              user_id], backref=db.backref('activities_history', lazy='select'))
     media_url = db.Column(db.String, nullable=False)  # URL del archivo
     # Actividad a la que pertenece este archivo
     activity_id = db.Column(db.Integer, db.ForeignKey('activities.id'))
@@ -174,7 +175,7 @@ class ActivitiesHistory(db.Model):
     def serialize_relationships(self):
         return {
             "id": self.id,
-            "user":self.users_to,
+            "user_to": self.user_to,
             "media_url": self.media_url,
             "activity_to": self.activity_to.serialize() if self.activity_to else None,
             "created_at": self.created_at
@@ -183,8 +184,7 @@ class ActivitiesHistory(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "user":self.user_id,
-           
+            "user_id": self.user_id,
             "media_url": self.media_url,
             "activity_id": self.activity_id,
             "created_at": self.created_at

@@ -6,11 +6,9 @@ from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from api.models import db, Users , Activities , ActivitiesHistory, Trips, UserTrips
 from sqlalchemy import asc
-from flask_jwt_extended import create_access_token
-from flask_jwt_extended import get_jwt_identity
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended import get_jwt
-
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt
+from flask_bcrypt import Bcrypt  # ✅ solo si no lo has hecho aún
+bcrypt = Bcrypt() 
 
 api = Blueprint('api', __name__)
 CORS(api)  # Allow CORS requests to this API
@@ -38,11 +36,14 @@ def register():
         response_body["results"] = None
         response_body["message"] = f"Email address {email} is already in use"
         return jsonify(response_body), 409
+     # Hasheamos la contraseña con Bcrypt para protegerla
+    # El hash es irreversible y se guarda en lugar del texto original
+    hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
 
     # Crear nuevo usuario
     user = Users(
         email=email,
-        password=password,
+        password=hashed_password, # Usamos la contraseña segura
         is_active=True,
         first_name=user_to_post.get("first_name"),
         last_name=user_to_post.get("last_name"),
@@ -82,12 +83,12 @@ def login():
     user = db.session.execute(
         db.select(Users).where(
             Users.email == email,
-            Users.password == password,
+           # Users.password == password,
             Users.is_active == True
         )
     ).scalar()
 
-    if not user:
+    if not user or not bcrypt.check_password_hash(user.password, password):
         response_body["results"] = None
         response_body["message"] = "Invalid credentials"
         return jsonify(response_body), 401

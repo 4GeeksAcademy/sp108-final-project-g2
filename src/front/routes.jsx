@@ -1,9 +1,18 @@
 import { createBrowserRouter, createRoutesFromElements, Route } from "react-router-dom";
 import { Layout } from "./pages/Layout.jsx";
-import { Home } from "./pages/Home.jsx";
-import { Single } from "./pages/Single.jsx";
-import { Demo } from "./pages/Demo.jsx";
 import { Error404 } from "./pages/Error404.jsx";
+import { Home } from "./pages/Home.jsx";
+import { Login } from "./pages/Login.jsx";
+import { Register } from "./pages/Register.jsx";
+import { ProfileSettings } from "./pages/ProfileSettings.jsx";
+import { Trips } from "./pages/Trips.jsx";
+import { TripDetails } from "./pages/TripDetails.jsx";
+import { TripUsers } from "./pages/TripUsers.jsx";
+import { TripUserDetails } from "./pages/TripUserDetails.jsx";
+import { Activities } from "./pages/Activities.jsx";
+import { ActivityDetails } from "./pages/ActivityDetails.jsx";
+import { ActivityStories } from "./pages/ActivityStories.jsx";
+import { ActivityStoryDetails } from "./pages/ActivityStoryDetails.jsx";
 
 
 /* 
@@ -17,9 +26,18 @@ export const router = createBrowserRouter (
     createRoutesFromElements (
       // Root Route: All navigation will start from here.
       <Route path="/" element={<Layout />} errorElement={<Error404/>} >
-        <Route path= "/" element={<Home />} />
-        <Route path="/single/:theId" element={ <Single />} />
-        <Route path="/demo" element={<Demo />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/users/:user_id" element={<ProfileSettings />} />
+        <Route path="/trips" element={<Trips />} />
+        <Route path="/trips/:trip_id" element={<TripDetails />} />
+        <Route path="/trips/:trip_id/users" element={<TripUsers />} />
+        <Route path="/trips/:trip_id/users/:user_id" element={<TripUserDetails />} />
+        <Route path="/trips/:trip_id/activities" element={<Activities />} />
+        <Route path="/trips/:trip_id/activities/:activity_id" element={<ActivityDetails />} />
+        <Route path="/trips/:trip_id/activities/:activity_id/activities-history" element={<ActivityStories />} />
+        <Route path="/trips/:trip_id/activities/:activity_id/activities-history/:activity_history_id" element={<ActivityStoryDetails />} />
       </Route>
     )
 );

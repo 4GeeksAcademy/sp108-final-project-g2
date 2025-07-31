@@ -49,18 +49,16 @@ class UserTrips(db.Model):
     def __repr__(self):
         return f'<user = {self.user_id} - trip = {self.trip_id}>'
 
-    def serialize_users(self):
-        return {
-            'id': self.id,
-            'user_id': self.user_id,
-            "trip_to": self.trip_to.serialize() if self.trip_to else None
-            }
-
     def serialize_trips(self):
         return {
             'id': self.id,
+            "trip_to": self.trip_to.serialize() if self.trip_to else None
+            }
+
+    def serialize_users(self):
+        return {
+            'id': self.id,
             'user_to': self.user_to.serialize() if self.user_to else None,
-            "trip_id": self.trip_id
             }
     
     def serialize(self):
@@ -104,7 +102,6 @@ class Trips(db.Model):
             'title': self.title,
             'start_date': self.start_date,
             'end_date': self.end_date,
-            'publicated': self.publicated
             }
 
 
@@ -130,7 +127,7 @@ class Activities(db.Model):
     def serialize_relationships(self):
         return {
             "id": self.id,
-            "trip_to": self.trip_to.serialize() if self.trip_to else None,
+            "trip_id": self.trip_id,
             "type": self.type,
             "company": self.company,
             "start_date": self.start_date,

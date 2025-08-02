@@ -22,6 +22,7 @@ cloudinary.config(
     api_secret = "heOJSAzXQAO7mmZBdfh9A2yM0Mg",
     secure = True
 )
+from flask_bcrypt import Bcrypt
 
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
@@ -39,6 +40,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=1)  # 24 horas
 jwt = JWTManager(app)
+bcrypt = Bcrypt(app)  
 
 
 MIGRATE = Migrate(app, db, compare_type=True)

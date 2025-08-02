@@ -4,7 +4,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
-from api.models import db, Users , Activities , ActivitiesHistory, Trips, UserTrips
+from api.models import db, Users, Trips, UserTrips, Activities, Stories
 from sqlalchemy import asc
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -16,7 +16,7 @@ api = Blueprint('api', __name__)
 CORS(api)  # Allow CORS requests to this API
 
 # REGISTRO DE USUARIO
-@api.route("/users", methods=["POST"])
+@api.route("/register", methods=["POST"])
 def register():
     response_body = {}
     user_to_post = request.get_json()
@@ -52,10 +52,7 @@ def register():
 
     # Crear claims para JWT
     claims = {
-        "email": user.email,
-        "is_active": user.is_active,
-        "first_name": user.first_name,
-        "last_name": user.last_name
+        "user_id": user.id
     }
     access_token = create_access_token(identity=user.email, additional_claims=claims)
 
@@ -398,11 +395,6 @@ def handle_user_in_trip(trip_id, user_id):
         response_body["message"] = "Current user not found"
         response_body["results"] = None
         return jsonify(response_body), 404
-    user = db.session.execute(db.select(Users).where(Users.id == user_id))
-    if not user:
-        response_body["results"] = None
-        response_body["message"] = f"User {user_id} not found"
-        return jsonify(response_body), 404
     trip = db.session.execute(db.select(Trips).where(Trips.id == trip_id)).scalar()
     if not trip:
         response_body["results"] = None
@@ -442,8 +434,8 @@ def handle_acivities(trip_id):
         return jsonify(response_body), 404
     trip = db.session.execute(db.select(Trips).where(Trips.id == trip_id)).scalar()
     if not trip:
-        response_body["results"] = None
         response_body["message"] = f"Trip {trip_id} not found"
+        response_body["results"] = None
         return jsonify(response_body), 404
     trip_owner_id = trip.trip_owner_id
     user_is_owner = trip_owner_id == token_user_id
@@ -515,11 +507,6 @@ def handle_activity(trip_id, activity_id):
         response_body["message"] = f"Trip {trip_id} not found"
         response_body["results"] = None
         return jsonify(response_body), 404
-    activity_exists = db.session.execute(db.select(Activities).where(Activities.id == activity_id)).scalar()
-    if not activity_exists:
-        response_body["message"] = f"Activity {activity_id} not found"
-        response_body["results"] = None
-        return jsonify(response_body), 404
     activity = db.session.execute(db.select(Activities).where(Activities.trip_id == trip_id,
                                                               Activities.id == activity_id)).scalar()
     if not activity:
@@ -573,81 +560,132 @@ def handle_activity(trip_id, activity_id):
         return jsonify(response_body), 200
 
 
-#Endpoints activitites media
-
-@api.route('/history-media' ,  methods = ['GET'])
-def handle_history_media():
-    response_body={}
-    rows = db.session.execute(db.select(ActivitiesHistory)).scalars()
-    response_body['results'] = [row.serialize() for row in rows]
-    response_body['message'] = 'Listado de las historias '
-    return response_body,200
-
-
-#trae la historia por su id 
-@api.route('/history-media/<int:id>', methods=['GET'])
-def get_history_media_by_id(id):
+@api.route("/trips/<int:trip_id>/activities/<int:activity_id>/stories", methods=["GET", "POST"])
+@jwt_required()
+def handle_stories(trip_id, activity_id):
     response_body = {}
+    claims = get_jwt()
+    token_user_id = claims["user_id"]
+    if not token_user_id:
+        response_body["message"] = "Current user not found"
+        response_body["results"] = None
+        return jsonify(response_body), 404
+    trip = db.session.execute(db.select(Trips).where(Trips.id == trip_id)).scalar()
+    if not trip:
+        response_body["message"] = f"Trip {trip_id} not found"
+        response_body["results"] = None
+        return jsonify(response_body), 404
+    activity = db.session.execute(db.select(Activities).where(Activities.id == activity_id,
+                                                              Activities.trip_id == trip_id)).scalar()
+    if not activity:
+        response_body["message"] = f"Activity {activity_id} not found in trip {trip_id}"
+        response_body["results"] = None
+        return jsonify(response_body), 404
+    trip_owner_id = trip.trip_owner_id
+    user_is_owner = trip_owner_id == token_user_id
+    if request.method == 'GET':
+        if not user_is_owner:
+            user_is_associated = db.session.execute(db.select(UserTrips).where(UserTrips.user_id == token_user_id,
+                                                                               UserTrips.trip_id == trip_id)).scalar()
+            if not user_is_associated:
+                publicated = db.session.execute(db.select(Trips).where(Trips.publicated == True,
+                                                                       Trips.id == trip_id)).scalar()
+                if not publicated:
+                    response_body["message"] = f"User {token_user_id} is not allowed to get stories from trip {trip_id}"
+                    response_body["results"] = None
+                    return jsonify(response_body), 403
+        stories = db.session.execute(db.select(Stories).join(Activities).where(Stories.activity_id == activity_id,
+                                                                               Activities.trip_id == trip_id)).scalars()
+        if not stories:
+            response_body["message"] = f"Activity {activity_id} from trip {trip_id} has no stories yet"
+            response_body["results"] = None
+            return jsonify(response_body), 404
+        results = [row.serialize() for row in stories]
+        response_body["message"] = f"Stories from activity {activity_id} in trip {trip_id} got successfully"
+        response_body["results"] = results
+        return jsonify(response_body), 200
+    if request.method == "POST":
+        if not user_is_owner:
+            user_is_associated = db.session.execute(db.select(UserTrips).where(UserTrips.user_id == token_user_id,
+                                                                               UserTrips.trip_id == trip_id)).scalar()
+            if not user_is_associated:
+                    response_body["message"] = f"User {token_user_id} is not allowed to post stories in trip {trip_id}"
+                    response_body["results"] = None
+                    return jsonify(response_body), 403
+        data = request.get_json() 
+        user_id = token_user_id
+        media_url = data.get('media_url', None)
+        activity_associated = activity_id
+        story = Stories()
+        story.user_id = user_id
+        story.media_url = media_url
+        story.activity_id = activity_associated
+        db.session.add(story)
+        db.session.commit()
+        results = story.serialize()
+        response_body["message"] = f"Story {story.id} has been posted to activity {activity_id} in trip {trip_id}"
+        response_body["results"] = results
+        return jsonify(response_body), 200
 
-    media = ActivitiesHistory.query.get_or_404(id)  # Busca el recuerdo por ID o lanza 404
-    response_body['result'] = media.serialize()
-    response_body['message'] = f'Recuerdo con ID {id} encontrado correctamente'
 
-    return response_body, 200
-
-    
-
-
-@api.route('/history-media' , methods = ['POST'])
-def create_history_media():
-    response_body ={}
-    #recibe el archivo desde el formulario
-
-    file = request.files.get('photo')
-    activity_id = request.from.get('actv')
-
-    data = request.get_json()
-
-    new = ActivitiesHistory(
-        media_url=data.get('media_url'), #el enlace del archivo
-        activity_id=data.get('activity_id') #el ID de la actividad a la que pertenece
-        #  # No hace falta poner created_at ,se genera solo.
-    )
-    db.session.add(new)
-    db.session.commit()
-    response_body['message'] = 'Archivo de la historia creado correctamente'
-    response_body['result'] = new.serialize()
-
-    return response_body, 201
-
-
-@api.route('/history-media/<int:id>', methods=['PUT'])
-def update_history_media(id):
+@api.route("/trips/<int:trip_id>/activities/<int:activity_id>/stories/<int:story_id>", methods=["GET", "DELETE"])
+@jwt_required()
+def handle_activity_story(trip_id, activity_id, story_id):
     response_body = {}
-
-    media = ActivitiesHistory.query.get_or_404(id)
-    data = request.get_json()
-
-    media.media_url = data.get('media_url', media.media_url)
-    media.activity_id = data.get('activity_id', media.activity_id)
-
-    db.session.commit()
-
-    response_body['message'] = f'Archivo con ID {id} actualizado correctamente'
-    response_body['result'] = media.serialize()
-
-    return response_body, 200
-
-
-@api.route('/history-media/<int:id>', methods=['DELETE'])
-def delete_history_media(id):
-    response_body = {}
-
-    media = ActivitiesHistory.query.get_or_404(id)
-    db.session.delete(media)
-    db.session.commit()
-
-    response_body['message'] = f'Archivo con ID {id} eliminado correctamente'
-
-    return response_body, 200
+    claims = get_jwt()
+    token_user_id = claims["user_id"]
+    if not token_user_id:
+        response_body["message"] = "Current user not found"
+        response_body["results"] = None
+        return jsonify(response_body), 404
+    trip = db.session.execute(db.select(Trips).where(Trips.id == trip_id)).scalar()
+    if not trip:
+        response_body["message"] = f"Trip {trip_id} not found"
+        response_body["results"] = None
+        return jsonify(response_body), 404
+    activity = db.session.execute(db.select(Activities).where(Activities.trip_id == trip_id,
+                                                              Activities.id == activity_id)).scalar()
+    if not activity:
+        response_body["message"] = f"Activity {activity_id} not found in trip {trip_id}"
+        response_body["results"] = None
+        return jsonify(response_body), 404
+    story = db.session.execute(db.select(Stories).join(Activities).where(Stories.id == story_id,
+                                                                         Stories.activity_id == activity_id,
+                                                                         Activities.trip_id == trip_id)).scalar()
+    if not story:
+        response_body["message"] = f"Story {story_id} not found in activity {activity_id} from trip {trip_id}"
+        response_body["results"] = None
+        return jsonify(response_body), 404
+    trip_owner_id = trip.trip_owner_id
+    user_is_owner = trip_owner_id == token_user_id
+    if request.method == "GET":
+        if not user_is_owner:
+            user_is_associated = db.session.execute(db.select(UserTrips).where(UserTrips.trip_id == trip_id, 
+                                                                               UserTrips.user_id == token_user_id)).scalar()
+            if not user_is_associated:
+                publicated = db.session.execute(db.select(Trips).where(Trips.publicated == True,
+                                                                       Trips.id == trip_id)).scalar()
+                if not publicated:
+                    response_body["message"] = f"User {token_user_id} is not allowed to get story {story_id} in activity {activity_id} from trip {trip_id}"
+                    response_body["results"] = None
+                    return jsonify(response_body), 403
+        results = story.serialize()
+        response_body["message"] = f"Story {story_id} got successfully from activity {activity_id} in trip {trip_id}"
+        response_body["results"] = results
+        return jsonify(response_body), 200
+    if request.method == "DELETE":
+        if not user_is_owner:
+            story_user = db.session.execute(db.select(Stories).join(Activities).where(Stories.user_id == token_user_id,
+                                                                                      Stories.id == story_id,
+                                                                                      Stories.activity_id == activity_id,
+                                                                                      Activities.trip_id == trip_id)).scalar()
+            if not story_user:
+                response_body["message"] = f"User {token_user_id} is not allowed to delete story {story_id} from activity {activity_id} in {trip_id}"
+                response_body["result"] = None
+                return jsonify(response_body), 403
+        db.session.delete(story)
+        db.session.commit()
+        response_body["message"] = f"Story {story_id} deleted successfully from activity {activity_id} in trip {trip_id}"
+        response_body["result"] = None
+        return jsonify(response_body), 200
 

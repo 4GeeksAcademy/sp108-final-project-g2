@@ -1,0 +1,435 @@
+/* NAVBAR*/
+/* Fondo azul marino para navbar */
+.navbar-custom {
+  background-color: #0B234F !important;
+}
+
+/* Texto y links blancos para mejor contraste dentro de navbar */
+.navbar-custom .navbar-brand,
+.navbar-custom .nav-link,
+.navbar-custom .btn-link {
+  color: white !important;
+}
+
+/* Tamaño del logo en navbar */
+.logo {
+  height: 32px; /* Ajustar tamaño del logo según necesidad */
+}
+
+/* Botones Login y Sign Up con fondo azul marino, borde y texto blanco */
+.navbar-custom .btn-login,
+.navbar-custom .btn-signup {
+  background-color: #0B234F;
+  color: white !important;
+  border: 1px solid white;
+  border-radius: 8px;
+  font-weight: 500;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-transform: none;
+  display: flex; /* Para alinear ícono y texto */
+  align-items: center;
+  gap: 5px; /* Separación entre ícono y texto */
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  margin-right: 0.75rem;
+}
+
+/* Hover para botones Login y Sign Up: colores invertidos para destacar */
+.navbar-custom .btn-login:hover,
+.navbar-custom .btn-signup:hover {
+  background-color: #F4B400; /* Amarillo paleta */
+  color: black !important;
+  border: 1px solid #e2a900; /* Amarillo oscuro */
+}
+
+/* Ícono dentro del botón Login en color blanco y tamaño 24px */
+.navbar-custom .btn-login i {
+  color: white;
+  font-size: 24px;
+}
+
+/* Hover para botones genéricos con clase btn-light dentro de navbar */
+.navbar-custom .btn.btn-light:hover {
+  background-color: #e6e6e6;
+  color: #0B234F; /* Texto azul marino */
+}
+
+/* Estilos para el toggler hamburguesa en navbar (menu colapsable móvil) */
+.custom-toggler {
+  border-color: #F4B400; /* Borde amarillo */
+}
+
+.custom-toggler .navbar-toggler-icon {
+  /* Ícono hamburguesa personalizado en amarillo */
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23F4B400' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+
+/*CAROUSEL*/
+
+/* Contenedor general del carrusel */
+.carousel-container {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-height: 85vh; /* Altura máxima relativa a la ventana */
+}
+
+/* Contenedor de las diapositivas */
+.carousel-slide {
+  display: flex; /* Para alinear imágenes en fila */
+  transition: transform 0.5s ease-in-out; /* Animación suave */
+}
+
+/* Imagen dentro del carrusel - tamaño para escritorio */
+.carousel-image {
+  height: 700px;
+  object-fit: cover; /* Ajusta la imagen cubriendo el área */
+  object-position: center; /* Centrar la imagen */
+  background-color: #0B234F;
+}
+
+/* Imagen carrusel en dispositivos móviles: menor altura */
+@media (max-width: 767px) {
+  .carousel-image {
+    height: 200px;
+  }
+}
+
+/* Capa superpuesta sobre imágenes para texto */
+.carousel-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); /* Capa semitransparente oscura */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centrar verticalmente */
+  align-items: center; /* Centrar horizontalmente */
+  color: #fff;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Título dentro del overlay */
+.carousel-overlay h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* Botón dentro del overlay */
+.carousel-overlay button {
+  background-color: #007bff;
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+/* Hover botón overlay */
+.carousel-overlay button:hover {
+  background-color: #0056b3;
+}
+
+/* Ajustes responsive para carrusel y overlay */
+@media screen and (max-width: 768px) {
+  .carousel-image {
+    height: 50vh;
+  }
+
+  .carousel-overlay h2 {
+    font-size: 1.5rem;
+  }
+
+  .carousel-overlay button {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
+/* SECCIÓN "¿A DÓNDE QUIERES IR?" */
+
+/* Sección principal con fondo claro */
+.cta-section {
+  background-color: #f8f9fa; /* Gris muy claro */
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+/* Contenedor centrado y ancho máximo */
+.cta-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Título destacado de la sección */
+.cta-title {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: #1e293b; /* Azul oscuro */
+  font-weight: 700;
+}
+
+/* Subtítulo con texto secundario */
+.cta-subtitle {
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  color: #475569; /* Gris azulado */
+}
+
+/* Botón CTA */
+.cta-button {
+  padding: 0.75rem 2rem;
+  background-color: #3b82f6; /* Azul claro */
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Hover botón CTA */
+.cta-button:hover {
+  background-color: #2563eb;
+}
+
+/* =======================
+   ESTILOS COMPARTIDOS PARA BOTONES
+   ======================= */
+
+/* Botones con fondo azul marino, texto blanco y borde blanco */
+.btn-shared {
+  background-color: #0B234F;
+  color: white !important;
+  border: 1px solid white;
+  border-radius: 8px;
+  font-weight: 500;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-transform: none;
+  display: flex;
+  align-items: center;
+  gap: 5px; /* espacio entre ícono y texto */
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  margin-right: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+/* Hover botón compartido: fondo amarillo y texto negro */
+.btn-shared:hover {
+  background-color: #F4B400; /* Amarillo paleta */
+  color: black !important;
+  border: 1px solid #e2a900;
+}
+
+/* Contenedor para centrar botones con margen arriba */
+.center-button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+  text-align: center;
+}
+
+/* =======================
+   SECCIÓN BENEFICIOS
+   ======================= */
+
+/* Contenedor de la sección de beneficios */
+.benefits-section {
+  padding: 4rem 2rem;
+  text-align: center;
+  background-color: #f9f9f9; /* Fondo gris claro */
+}
+
+/* Título principal de la sección */
+.section-title {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Contenedor flex para las tarjetas de beneficios */
+.benefits-cards {
+  display: flex;
+  flex-wrap: wrap; /* Permite que se ajusten en varias filas */
+  justify-content: center;
+  gap: 2rem; /* Espacio entre tarjetas */
+}
+
+/* Cada tarjeta de beneficio */
+.benefit-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 300px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+  transition: transform 0.3s ease;
+}
+
+/* Animación hover: elevar tarjeta */
+.benefit-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Imagen dentro de la tarjeta */
+.benefit-card img {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 1rem;
+}
+
+/* =======================
+   BOTÓN DEL CARRUSEL
+   ======================= */
+
+/* Botón amarillo para el carrusel */
+.carousel-button {
+  background-color: #FFD700; /* Amarillo paleta */
+  color: #000; /* Texto negro */
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Hover botón carrusel: amarillo oscuro */
+.carousel-button:hover {
+  background-color: #e6c200;
+}
+
+/* =======================
+   TEXTO Y BOTÓN EN EL CARRUSEL
+   ======================= */
+
+/* Contenedor del texto y botón dentro del carrusel */
+.carousel-caption {
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+/* =======================
+   VARIACIÓN DE BOTÓN COMPARTIDO (con borde amarillo)
+   ======================= */
+
+.btn-shared {
+  background-color: #0B234F;
+  border: 2px solid #FFD700; /* Borde amarillo dorado */
+  color: #FFD700;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-align: center;
+  display: inline-block;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+/* Hover para esta variante de btn-shared */
+.btn-shared:hover {
+  background-color: #FFD700;
+  color: #1a1a1a;
+}
+
+/* =======================
+   FOOTER
+   ======================= */
+
+/* Contenedor principal del footer */
+.footer-container {
+  background-color: #0B234F;
+  padding: 2rem 1rem;
+  font-family: inherit;
+}
+
+/* Contenedor que agrupa las secciones dentro del footer */
+.footer-content {
+  display: flex;
+  flex-wrap: wrap; /* Permite varias filas en pantallas pequeñas */
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 1rem; /* Espacio entre columnas */
+}
+
+/* Cada sección dentro del footer */
+.footer-section {
+  flex: 1; /* Ocupa espacio igual entre secciones */
+  min-width: 150px; /* Ancho mínimo para evitar colapso */
+  margin: 0; /* Sin margen extra */
+  padding: 0.5rem 1rem; /* Espaciado interno */
+}
+
+/* Títulos en footer */
+.footer-section h4,
+.footer-section h5 {
+  margin-bottom: 0 0 0.5rem 0;
+  font-weight: 700;
+}
+
+/* Párrafos, listas y items de listas en footer */
+.footer-section p,
+.footer-section ul,
+.footer-section li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-weight: 400;
+}
+
+/* Items de listas con margen abajo para separar */
+.footer-section ul li {
+  margin-bottom: 0.5rem;
+}
+
+/* Estilo para enlaces dentro del footer */
+.footer-section ul li a {
+  color: white;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+/* Hover en enlaces footer: cambia a amarillo paleta */
+.footer-section ul li a:hover {
+  color: #F4B400;
+}
+
+/* Iconos sociales */
+.social-icons a {
+  margin-right: 1rem;
+  color: white;
+  font-size: 1.5rem;
+  transition: color 0.3s ease;
+}
+
+.btn-login {
+  background-color: #0B234F;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px; /* Bordes redondeados */
+  transition: background-color 0.3s ease;
+  width: auto;         /* No ocupa todo el ancho */
+  display: block;      /* Para usar margin auto */
+  margin: 0 auto;      /* Centrado horizontal */
+}
+
+.btn-login:hover {
+  background-color: #F4B400;
+  color: #0B234F;
+}
+

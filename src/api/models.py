@@ -156,13 +156,12 @@ class Activities(db.Model):
 
 
 class Stories(db.Model):
-    __tablename__ = 'stories'
+    _tablename_ = 'stories'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))  # contector de una tabla a otra
     user_to = db.relationship("Users", foreign_keys=[
                               user_id], backref=db.backref('stories', lazy='select'))
     media_url = db.Column(db.String, nullable=False)  # URL del archivo
-    media_public_id = db.Column(db.String, nullable=True) # ID interno de Cloudinary para poder eliminarla
     # Actividad a la que pertenece este archivo
     activity_id = db.Column(db.Integer, db.ForeignKey('activities.id'))
     activity_to = db.relationship('Activities', foreign_keys=[
@@ -175,7 +174,6 @@ class Stories(db.Model):
             "id": self.id,
             "user_id": self.user_id,
             "media_url": self.media_url,
-            "media_public_id":self.media_public_id,
             "activity_id": self.activity_id,
             "created_at": self.created_at
             }

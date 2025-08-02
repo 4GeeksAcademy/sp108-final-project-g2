@@ -12,6 +12,7 @@ from api.admin import setup_admin
 from api.commands import setup_commands
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
+from flask_bcrypt import Bcrypt
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
@@ -22,7 +23,7 @@ cloudinary.config(
     api_secret = "heOJSAzXQAO7mmZBdfh9A2yM0Mg",
     secure = True
 )
-from flask_bcrypt import Bcrypt
+
 
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"

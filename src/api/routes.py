@@ -601,6 +601,10 @@ def get_history_media_by_id(id):
 @api.route('/history-media' , methods = ['POST'])
 def create_history_media():
     response_body ={}
+    #recibe el archivo desde el formulario
+
+    file = request.files.get('photo')
+    activity_id = request.from.get('actv')
 
     data = request.get_json()
 

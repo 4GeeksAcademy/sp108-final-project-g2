@@ -11,8 +11,8 @@ import { TripUsers } from "./pages/TripUsers.jsx";
 import { TripUserDetails } from "./pages/TripUserDetails.jsx";
 import { Activities } from "./pages/Activities.jsx";
 import { ActivityDetails } from "./pages/ActivityDetails.jsx";
-import { ActivityStories } from "./pages/ActivityStories.jsx";
-import { ActivityStoryDetails } from "./pages/ActivityStoryDetails.jsx";
+import { ActivityStories } from "./pages/Stories.jsx";
+import { ActivityStoryDetails } from "./pages/StoryDetails.jsx";
 
 
 /* 
@@ -36,8 +36,8 @@ export const router = createBrowserRouter (
         <Route path="/trips/:trip_id/users/:user_id" element={<TripUserDetails />} />
         <Route path="/trips/:trip_id/activities" element={<Activities />} />
         <Route path="/trips/:trip_id/activities/:activity_id" element={<ActivityDetails />} />
-        <Route path="/trips/:trip_id/activities/:activity_id/activities-history" element={<ActivityStories />} />
-        <Route path="/trips/:trip_id/activities/:activity_id/activities-history/:activity_history_id" element={<ActivityStoryDetails />} />
+        <Route path="/trips/:trip_id/activities/:activity_id/stories" element={<ActivityStories />} />
+        <Route path="/trips/:trip_id/activities/:activity_id/stories/:story_id" element={<ActivityStoryDetails />} />
       </Route>
     )
 );

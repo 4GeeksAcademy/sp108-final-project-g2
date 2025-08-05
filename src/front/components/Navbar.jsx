@@ -44,7 +44,7 @@ export const Navbar = () => {
             </li>
             <li className="nav-item">
               <Link to="/activity-stories" className="nav-link text-white">
-                Historias de Actividades
+                Stories
               </Link>
             </li>
             <li className="nav-item">
@@ -53,7 +53,7 @@ export const Navbar = () => {
               </Link>
             </li>
 
-            {/* Dropdown favoritos */}
+            {/* Dropdown favoritos 
             <li className="nav-item dropdown">
               <button
                 className="btn nav-link dropdown-toggle btn-link text-white"
@@ -69,7 +69,7 @@ export const Navbar = () => {
               >
                 <li className="dropdown-item text-muted">No favorites yet</li>
               </ul>
-            </li>
+            </li>*/}
           </ul>
 
           {/* Botones a la derecha */}

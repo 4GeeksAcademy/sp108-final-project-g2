@@ -3,8 +3,7 @@ import React from 'react';
 
 export default function Contact() {
   return (
-    <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '50vh' }}>
-      <div className="card p-4 shadow" style={{ width: '100%', maxWidth: '500px', borderRadius: '20px' }}>
+    <div className="container mt-5 mb-5" style={{ maxWidth: "500px" }}>
         <h2 className="text-center mb-4">
           <i className="fa-solid fa-paper-plane me-2 text-warning"></i> Contáctanos
         </h2>
@@ -50,7 +49,6 @@ export default function Contact() {
             <i className="fa-solid fa-paper-plane me-2"></i> Enviar
           </button>
         </form>
-      </div>
     </div>
   );
 }

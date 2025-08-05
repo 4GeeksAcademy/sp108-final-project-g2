@@ -1,7 +1,7 @@
-// src/pages/Contact.jsx
+ // src/pages/Contact.jsx
 import React from 'react';
 
-export default function Contact() {
+export const Contact = () => {
   return (
     <div className="container mt-5 mb-5" style={{ maxWidth: "500px" }}>
         <h2 className="text-center mb-4">

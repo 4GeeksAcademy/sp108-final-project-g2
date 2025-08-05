@@ -13,7 +13,7 @@ import { Activities } from "./pages/Activities.jsx";
 import { ActivityDetails } from "./pages/ActivityDetails.jsx";
 import { Stories } from "./pages/Stories.jsx";
 import { StoryDetails } from "./pages/StoryDetails.jsx";
-import Contact from "./pages/Contact.jsx";
+import { Contact } from "./pages/Contact.jsx";
 
 
 /* 
@@ -28,8 +28,8 @@ export const router = createBrowserRouter (
       // Root Route: All navigation will start from here.
       <Route path="/" element={<Layout />} errorElement={<Error404/>} >
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/users/:user_id" element={<ProfileSettings />} />
         <Route path="/trips" element={<Trips />} />

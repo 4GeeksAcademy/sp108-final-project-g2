@@ -1,5 +1,4 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFacebookF, faTwitter, faInstagram } from '@fortawesome/free-brands-svg-icons';
+import React from "react"
 
 export const Footer = () => {
 	return (
@@ -23,15 +22,9 @@ export const Footer = () => {
 				<div className="footer-section">
 					<h5 className="text-warning fw-semibold mb-2">Síguenos</h5>
 					<div className="d-flex gap-3">
-						<a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook">
-							<FontAwesomeIcon icon={faFacebookF} size="lg" className="text-warning" />
-						</a>
-						<a href="https://twitter.com" target="_blank" rel="noreferrer" aria-label="Twitter">
-							<FontAwesomeIcon icon={faTwitter} size="lg" className="text-warning" />
-						</a>
-						<a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram">
-							<FontAwesomeIcon icon={faInstagram} size="lg" className="text-warning" />
-						</a>
+						<i className="fa-brands fa-facebook"></i>
+						<i class="fa-brands fa-x-twitter"></i>
+						<i class="fa-brands fa-instagram"></i>
 					</div>
 				</div>
 			</div>

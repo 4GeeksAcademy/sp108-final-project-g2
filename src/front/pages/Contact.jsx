@@ -1,7 +1,8 @@
  // src/pages/Contact.jsx
 import React from 'react';
+
 export const Contact = () => {
-    return (
+  return (
     <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '50vh' }}>
       <div className="card p-4 shadow" style={{ width: '100%', maxWidth: '500px', borderRadius: '20px' }}>
         <h2 className="text-center mb-4">

@@ -715,4 +715,3 @@ def handle_activity_story(trip_id, activity_id, story_id):
     response_body["message"] = f"Story {story_id} deleted successfully from activity {activity_id} in trip {trip_id}"
     response_body["result"] = None
     return jsonify(response_body), 200
-

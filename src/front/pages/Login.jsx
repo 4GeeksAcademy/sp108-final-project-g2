@@ -1,6 +1,44 @@
-import React from "react";
+
+import React, { useState } from "react"
+import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
+import { Link, useNavigate } from "react-router-dom";
+import { login } from "../services/auth.js"
 
 export const Login = () => {
+	const navigate = useNavigate();
+	const { store, dispatch } = useGlobalReducer();
+
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+
+	const handleEmail = event => setEmail(event.target.value);
+	const handlePassword = event => setPassword(event.target.value);
+
+	const handleSubmitLogin = async (event) => {
+		event.preventDefault();
+		const userToLogin = {
+			"email": email,
+			"password": password,
+		}
+		const userLogged = await login(userToLogin);
+		localStorage.setItem("token", userLogged.access_token);
+		dispatch({
+			type: "LOGIN",
+			payload: { token: userLogged.access_token, isLogged: true }
+		});
+		dispatch({
+			type: "CURRENT-USER",
+			payload: userLogged.results
+		});
+		navigate("/");
+	}
+
+	/* const handleCancel = () => {
+		setEmail("");
+		setPassword("");
+		navigate("/");
+	} */
+
 	return (
 		<div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '50vh' }}>
 			<div className="card p-4 shadow" style={{ width: '100%', maxWidth: '400px', borderRadius: '20px' }}>
@@ -9,17 +47,15 @@ export const Login = () => {
 					<h2 className="mt-2">Iniciar sesión</h2>
 				</div>
 
-				<form>
+				<form onSubmit={handleSubmitLogin}>
+
 					{/* Email */}
 					<div className="mb-3 input-group">
 						<span className="input-group-text">
 							<i className="fas fa-envelope"></i>
 						</span>
-						<input
-							type="email"
-							className="form-control"
-							placeholder="Correo electrónico"
-						/>
+						<input type="email" className="form-control rounded-3" id="loginEmail" placeholder="Correo electrónico"
+							value={email} onChange={handleEmail} />
 					</div>
 
 					{/* Contraseña */}
@@ -27,16 +63,13 @@ export const Login = () => {
 						<span className="input-group-text">
 							<i className="fas fa-lock"></i>
 						</span>
-						<input
-							type="password"
-							className="form-control"
-							placeholder="Contraseña"
-						/>
+						<input type="password" className="form-control rounded-3" id="loginPassword" placeholder="Contraseña"
+							value={password} onChange={handlePassword} />
 					</div>
 
-					{/* Botón */}
+					{/* Botón Login */}
 					<div className="d-grid mb-3">
-						<button className="btn-login">
+						<button className="btn btn-login" type="submit">
 							<i className="fas fa-user me-2"></i> Iniciar sesión
 						</button>
 					</div>
@@ -44,7 +77,8 @@ export const Login = () => {
 					{/* Enlace a registro */}
 					<div className="text-center">
 						<small>
-							¿No tienes una cuenta? <a href="/register">Regístrate aquí</a>
+							¿No tienes una cuenta?
+							<Link to="/register"> Regístrate aquí</Link>
 						</small>
 					</div>
 				</form>

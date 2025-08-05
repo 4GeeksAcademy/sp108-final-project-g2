@@ -28,8 +28,8 @@ export const router = createBrowserRouter (
       // Root Route: All navigation will start from here.
       <Route path="/" element={<Layout />} errorElement={<Error404/>} >
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/users/:user_id" element={<ProfileSettings />} />
         <Route path="/trips" element={<Trips />} />
@@ -40,7 +40,6 @@ export const router = createBrowserRouter (
         <Route path="/trips/:trip_id/activities/:activity_id" element={<ActivityDetails />} />
         <Route path="/trips/:trip_id/activities/:activity_id/stories" element={<Stories />} />
         <Route path="/trips/:trip_id/activities/:activity_id/stories/:story_id" element={<StoryDetails />} />
-
       </Route>
       
     )

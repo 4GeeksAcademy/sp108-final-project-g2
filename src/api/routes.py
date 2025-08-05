@@ -10,6 +10,8 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt
+import cloudinary.uploader
+
 
 
 api = Blueprint('api', __name__)
@@ -566,6 +568,7 @@ def handle_stories(trip_id, activity_id):
     response_body = {}
     claims = get_jwt()
     token_user_id = claims["user_id"]
+
     if not token_user_id:
         response_body["message"] = "Current user not found"
         response_body["results"] = None
@@ -581,6 +584,7 @@ def handle_stories(trip_id, activity_id):
         response_body["message"] = f"Activity {activity_id} not found in trip {trip_id}"
         response_body["results"] = None
         return jsonify(response_body), 404
+    
     trip_owner_id = trip.trip_owner_id
     user_is_owner = trip_owner_id == token_user_id
     if request.method == 'GET':
@@ -612,15 +616,31 @@ def handle_stories(trip_id, activity_id):
                     response_body["message"] = f"User {token_user_id} is not allowed to post stories in trip {trip_id}"
                     response_body["results"] = None
                     return jsonify(response_body), 403
-        data = request.get_json() 
-        user_id = token_user_id
-        media_url = data.get('media_url', None)
-        activity_associated = activity_id
-        story = Stories()
-        story.user_id = user_id
-        story.media_url = media_url
-        story.activity_id = activity_associated
+      #Subir imagen a cloudinary
+        print ("LLEGAMOS")
+        image = request.files.get('media')
+        if not image:
+           response_body["message"] = "No image file provided"
+           response_body["results"] = None
+           return jsonify(response_body), 400
+        result = cloudinary.uploader.upload(
+            image,
+            folder=f"trips/{trip_id}/activities/{activity_id}/stories",
+            overwrite=True
+        )
+        print (result)
+        media_url = result["secure_url"]
+        media_public_id = result["public_id"]
+
+         # Crear historia
+        story = Stories(
+            user_id=token_user_id,
+            media_url=media_url,
+            media_public_id=media_public_id,
+            activity_id=activity_id
+        )
         db.session.add(story)
+        db.session.commit()
         db.session.commit()
         results = story.serialize()
         response_body["message"] = f"Story {story.id} has been posted to activity {activity_id} in trip {trip_id}"
@@ -683,9 +703,16 @@ def handle_activity_story(trip_id, activity_id, story_id):
                 response_body["message"] = f"User {token_user_id} is not allowed to delete story {story_id} from activity {activity_id} in {trip_id}"
                 response_body["result"] = None
                 return jsonify(response_body), 403
-        db.session.delete(story)
-        db.session.commit()
-        response_body["message"] = f"Story {story_id} deleted successfully from activity {activity_id} in trip {trip_id}"
-        response_body["result"] = None
-        return jsonify(response_body), 200
+            
+    #  Eliminar imagen de Cloudinary
+    if story.media_public_id:
+        cloudinary.uploader.destroy(story.media_public_id)
+
+     # Eliminar historia
+    db.session.delete(story)
+    db.session.commit()
+        
+    response_body["message"] = f"Story {story_id} deleted successfully from activity {activity_id} in trip {trip_id}"
+    response_body["result"] = None
+    return jsonify(response_body), 200
 

@@ -617,7 +617,8 @@ def handle_stories(trip_id, activity_id):
                     response_body["results"] = None
                     return jsonify(response_body), 403
       #Subir imagen a cloudinary
-        image = request.file.get('media')
+        print ("LLEGAMOS")
+        image = request.files.get('media')
         if not image:
            response_body["message"] = "No image file provided"
            response_body["results"] = None
@@ -627,6 +628,7 @@ def handle_stories(trip_id, activity_id):
             folder=f"trips/{trip_id}/activities/{activity_id}/stories",
             overwrite=True
         )
+        print (result)
         media_url = result["secure_url"]
         media_public_id = result["public_id"]
 

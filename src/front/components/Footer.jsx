@@ -1,3 +1,4 @@
+import React from "react"
 
 export const Footer = () => {
 	return (
@@ -21,9 +22,9 @@ export const Footer = () => {
 				<div className="footer-section">
 					<h5 className="text-warning fw-semibold mb-2">Síguenos</h5>
 					<div className="d-flex gap-3">
-					<i className="fa-brands fa-facebook"></i>
-                     <i class="fa-brands fa-x-twitter"></i>
-                     <i class="fa-brands fa-instagram"></i>
+						<i className="fa-brands fa-facebook"></i>
+						<i class="fa-brands fa-x-twitter"></i>
+						<i class="fa-brands fa-instagram"></i>
 					</div>
 				</div>
 			</div>

@@ -1,6 +1,8 @@
 import { useEffect } from "react"
 import rigoImageUrl from "../assets/img/rigo-baby.jpg";
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
+import tripPlanningLogo from "../assets/img/trip_planning.png";
+import { Link } from "react-router-dom";
 
 
 export const Home = () => {
@@ -29,25 +31,137 @@ export const Home = () => {
 	}
 
 	useEffect(() => {
-		loadMessage()
-	}, [])
+		loadMessage();
+	}, []);
 
+	const carouselImages = [
+		{
+			url: "https://images.pexels.com/photos/7368269/pexels-photo-7368269.jpeg",
+			title: "Explora el mundo",
+			btnText: "Crear Viaje",
+			btnLink: "/trips/new"
+		},
+		{
+			url: "https://images.pexels.com/photos/413960/pexels-photo-413960.jpeg",
+			title: "Aventuras inolvidables",
+			btnText: "Crear Viaje",
+			btnLink: "/trips/new"
+		},
+		{
+			url: "https://images.pexels.com/photos/804463/pexels-photo-804463.jpeg",
+			title: "Crea recuerdos",
+			btnText: "Crear Viaje",
+			btnLink: "/trips/new"
+		}
+	];
 
 	return (
-		<div className="text-center mt-5">
-			<h1 className="display-4">Hello Rigo!!</h1>
-			<p className="lead">
-				<img src={rigoImageUrl} className="img-fluid rounded-circle mb-3" alt="Rigo Baby" />
-			</p>
-			<div className="alert alert-info">
-				{store.message ? (
-					<span>{store.message}</span>
-				) : (
-					<span className="text-danger">
-						Loading message from the backend (make sure your python 🐍 backend is running)...
-					</span>
-				)}
+		<>
+			{/* Carrusel */}
+
+			<div
+				id="carouselExampleIndicators"
+				className="carousel slide"
+				data-bs-ride="carousel"
+			>
+				<div className="carousel-indicators">
+					{carouselImages.map((_, idx) => (
+						<button
+							key={idx}
+							type="button"
+							data-bs-target="#carouselExampleIndicators"
+							data-bs-slide-to={idx}
+							className={idx === 0 ? "active" : ""}
+							aria-current={idx === 0 ? "true" : undefined}
+							aria-label={`Slide ${idx + 1}`}
+						></button>
+					))}
+				</div>
+
+				<div className="carousel-inner">
+					{carouselImages.map(({ url, title, btnText, btnLink }, idx) => (
+						<div
+							key={idx}
+							className={`carousel-item ${idx === 0 ? "active" : ""}`}
+						>
+							<img
+								src={url}
+								className="d-block w-100 carousel-image"
+								alt={title}
+							/>
+							<div className="carousel-caption">
+								<h2 className="fw-bold">{title}</h2>
+								<a href={btnLink} className="btn-shared mt-3">
+									{btnText}
+								</a>
+
+							</div>
+						</div>
+					))}
+				</div>
+
+				<button
+					className="carousel-control-prev "
+					type="button"
+					data-bs-target="#carouselExampleIndicators"
+					data-bs-slide="prev"
+				>
+					<span
+						className="carousel-control-prev-icon"
+						aria-hidden="true"
+					></span>
+					<span className="visually-hidden">Anterior</span>
+				</button>
+				<button
+					className="carousel-control-next"
+					type="button"
+					data-bs-target="#carouselExampleIndicators"
+					data-bs-slide="next"
+				>
+					<span
+						className="carousel-control-next-icon"
+						aria-hidden="true"
+					></span>
+					<span className="visually-hidden">Siguiente</span>
+				</button>
 			</div>
-		</div>
+
+			<section className="cta-section">
+				<div className="cta-container">
+					<h2 className="cta-title">Empieza a planificar tu próxima aventura</h2>
+					<p className="cta-subtitle">
+						Descubre, organiza y comparte tu viaje ideal en minutos.
+					</p>
+					<div className="center-button-container">
+						<button onClick={() => navigate('/register')} className="btn-shared">
+							¡Empieza tu aventura!
+						</button>
+					</div>
+
+				</div>
+			</section>
+			<section className="benefits-section">
+				<h2 className="section-title">¿Por qué usar nuestra app?</h2>
+				<div className="benefits-cards">
+					<div className="benefit-card">
+						<img src="https://cdn-icons-png.flaticon.com/512/854/854878.png" alt="icono 1" />
+						<h3>Planifica con facilidad</h3>
+						<p>Organiza todos tus destinos, actividades y alojamientos en un solo lugar.</p>
+					</div>
+					<div className="benefit-card">
+						<img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="icono 2" />
+						<h3>Colabora con amigos</h3>
+						<p>Invita a otros a unirse a tus viajes y hacer planes juntos en tiempo real.</p>
+					</div>
+					<div className="benefit-card">
+						<img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="icono recuerdos" />
+						<h3>Guarda tus recuerdos</h3>
+						<p>Captura cada momento de tus viajes guardando fotos y vídeos de tus aventuras para revivirlos cuando quieras.</p>
+					</div>
+
+				</div>
+			</section>
+
+		</>
 	);
 };

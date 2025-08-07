@@ -18,10 +18,11 @@ import cloudinary.uploader
 import cloudinary.api
 
 
+
 cloudinary.config(
-    cloud_name = "dv5f6mfmh",
-    api_key = "957333539397681",
-    api_secret = "heOJSAzXQAO7mmZBdfh9A2yM0Mg",
+    cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key =  os.getenv("CLOUDINARY_API_KEY"),
+    api_secret =  os.getenv("CLOUDINARY_API_SECRET"),
     secure = True
 )
 

@@ -8,9 +8,16 @@ import { Footer } from "../components/Footer.jsx"
 export const Layout = () => {
     return (
         <ScrollToTop>
-            <Navbar />
-                <Outlet />
-            <Footer />
+             <div className="d-flex flex-column min-vh-100">
+                <Navbar />
+
+                {/* El main con flex-grow para ocupar todo el espacio y empujar el footer */}
+                <main className="flex-grow-1">
+                    <Outlet />
+                </main>
+
+                <Footer />
+            </div>
         </ScrollToTop>
     )
 }

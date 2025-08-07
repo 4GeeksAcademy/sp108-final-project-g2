@@ -114,7 +114,9 @@ export const Register = () => {
 						<i className="fas fa-user-plus me-2"></i>
 						Registrarse
 					</button>
-					<button onClick={handleCancel} type="button" className="btn bg-secondary text-white">
+					<button onClick={handleCancel} type="button" className="btn-login">
+						<i className="fas fa-times me-2"></i>
+
 						Cancel
 					</button>
 				</div>

@@ -2,6 +2,7 @@ import { useEffect } from "react"
 import rigoImageUrl from "../assets/img/rigo-baby.jpg";
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 import tripPlanningLogo from "../assets/img/trip_planning.png";
+import { Link } from "react-router-dom";
 
 
 export const Home = () => {
@@ -100,7 +101,7 @@ export const Home = () => {
 				</div>
 
 				<button
-					className="carousel-control-prev"
+					className="carousel-control-prev "
 					type="button"
 					data-bs-target="#carouselExampleIndicators"
 					data-bs-slide="prev"

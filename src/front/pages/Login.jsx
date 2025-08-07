@@ -50,57 +50,43 @@ export const Login = () => {
 				<h2 className="mt-2">Iniciar sesión</h2>
 			</div>
 
-			<form>
+			<form onSubmit={handleSubmitLogin}>
+
 				{/* Email */}
 				<div className="mb-3 input-group">
 					<span className="input-group-text">
 						<i className="fas fa-envelope"></i>
 					</span>
-					<input
-						type="email"
-						className="form-control"
-						placeholder="Correo electrónico"
-					/>
+					<input type="email" className="form-control rounded-3" id="loginEmail" placeholder="Correo electrónico"
+						value={email} onChange={handleEmail} />
 				</div>
 
-				<form onSubmit={handleSubmitLogin}>
+				{/* Contraseña */}
+				<div className="mb-4 input-group">
+					<span className="input-group-text">
+						<i className="fas fa-lock"></i>
+					</span>
+					<input type="password" className="form-control rounded-3" id="loginPassword" placeholder="Contraseña"
+						value={password} onChange={handlePassword} />
+				</div>
 
-					{/* Email */}
-					<div className="mb-3 input-group">
-						<span className="input-group-text">
-							<i className="fas fa-envelope"></i>
-						</span>
-						<input type="email" className="form-control rounded-3" id="loginEmail" placeholder="Correo electrónico"
-							value={email} onChange={handleEmail} />
-					</div>
+				{/* Botón Login y Cancel*/}
+				<div className="d-grid mb-3">
+					<button className="btn btn-login" type="submit">
+						<i className="fas fa-user me-2"></i> Iniciar sesión
+					</button>
+					<button onClick={handleCancel} type="button" className="btn bg-secondary text-white">
+						Cancel
+					</button>
+				</div>
 
-					{/* Contraseña */}
-					<div className="mb-4 input-group">
-						<span className="input-group-text">
-							<i className="fas fa-lock"></i>
-						</span>
-						<input type="password" className="form-control rounded-3" id="loginPassword" placeholder="Contraseña"
-							value={password} onChange={handlePassword} />
-					</div>
-
-					{/* Botón Login y Cancel*/}
-					<div className="d-grid mb-3">
-						<button className="btn btn-login" type="submit">
-							<i className="fas fa-user me-2"></i> Iniciar sesión
-						</button>
-						<button onClick={handleCancel} type="button" className="btn bg-secondary text-white">
-							Cancel
-						</button>
-					</div>
-
-					{/* Enlace a registro */}
-					<div className="text-center">
-						<small>
-							¿No tienes una cuenta?
-							<Link to="/register"> Regístrate aquí</Link>
-						</small>
-					</div>
-				</form>
+				{/* Enlace a registro */}
+				<div className="text-center">
+					<small>
+						¿No tienes una cuenta?
+						<Link to="/register"> Regístrate aquí</Link>
+					</small>
+				</div>
 			</form>
 		</div>
 	);

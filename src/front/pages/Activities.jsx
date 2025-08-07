@@ -2,8 +2,28 @@ import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Map } from "../components/Map.jsx"; // Ajusta si hace falta
 
+
 export const Activities = () => {
   const { trip_id } = useParams();
+
+    const [activityName, setActivityName] = useState("");
+    const [activityDescription, setActivityDescription] = useState("");
+    const [activityDate, setActivityDate] = useState("");
+    const [activityTime, setActivityTime] = useState("");
+    const [activityAddress, setActivityAdress] = useState("");
+
+  const handleActivityName = event => setActivityName(event.target.value);
+	const handleActivityDescription = event => setActivityDescription(event.target.value);
+	const handleActivityDate = event => setActivityDate(event.target.value);
+	const handleActivityTime = event => setActivityTime(event.target.value);
+	const handleActivityAddress = event => setActivityAdress(event.target.value);
+
+  const handleSubmitActivity = async (event) => {
+  event.preventDefault();
+
+
+};
+
 
   const initialActivities = [
     {
@@ -79,7 +99,7 @@ export const Activities = () => {
   const handleDelete = (id) => {
     setActivities((prev) => prev.filter((a) => a.id !== id));
   };
-
+ // termina lo que ha trabajado giobani
   return (
     <div className="container py-5">
       {/* Título */}
@@ -94,13 +114,13 @@ export const Activities = () => {
       <div className="row">
         {/* Formulario manual */}
         <div className="col-lg-5 mb-4">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmitActivity}>
             <div className="mb-2 input-group">
               <span className="input-group-text"><i className="fas fa-tag"></i></span>
               <input
                 name="name"
-                value={form.name}
-                onChange={handleChange}
+                value={activityName}
+                onChange={handleActivityName}
                 className="form-control"
                 placeholder="Nombre de la actividad"
               />
@@ -110,8 +130,8 @@ export const Activities = () => {
               <span className="input-group-text"><i className="fas fa-align-left"></i></span>
               <input
                 name="description"
-                value={form.description}
-                onChange={handleChange}
+                value={activityDescription}
+                onChange={handleActivityDescription}
                 className="form-control"
                 placeholder="Descripción (opcional)"
               />
@@ -122,18 +142,18 @@ export const Activities = () => {
                 <span className="input-group-text"><i className="fas fa-calendar-alt"></i></span>
                 <input
                   name="date"
-                  value={form.date}
-                  onChange={handleChange}
+                  value={activityDate}
+                  onChange={handleActivityDate}
                   type="date"
                   className="form-control"
                 />
               </div>
-              <div className="input-group" style={{ width: 150 }}>
+              <div className="input-group" style={{ width: 200 }}>
                 <span className="input-group-text"><i className="fas fa-clock"></i></span>
                 <input
                   name="time"
-                  value={form.time}
-                  onChange={handleChange}
+                  value={activityTime}
+                  onChange={handleActivityTime}
                   type="time"
                   className="form-control"
                 />
@@ -144,8 +164,8 @@ export const Activities = () => {
               <span className="input-group-text"><i className="fas fa-map-marker-alt"></i></span>
               <input
                 name="address"
-                value={form.address}
-                onChange={handleChange}
+                value={activityAddress}
+                onChange={handleActivityAddress}
                 className="form-control"
                 placeholder="Dirección (opcional)"
               />

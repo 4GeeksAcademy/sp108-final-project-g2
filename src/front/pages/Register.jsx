@@ -5,7 +5,7 @@ import { register } from "../services/auth.js"
 
 export const Register = () => {
 	const navigate = useNavigate();
-	const { store, dispatch } = useGlobalReducer();
+	const { dispatch } = useGlobalReducer();
 
 	const [email, setEmail] = useState("");
 	const [password1, setPassword1] = useState("");
@@ -29,15 +29,15 @@ export const Register = () => {
 				"last_name": lastName
 			};
 			const userRegistered = await register(userToPost);
-			localStorage.setItem("token", userRegistered.access_token);
-			dispatch({
-				type: "LOGIN",
-				payload: { token: userRegistered.access_token, isLogged: true }
-			});
 			dispatch({
 				type: "CURRENT-USER",
 				payload: userRegistered.results
 			});
+			dispatch({
+				type: "LOGIN",
+				payload: { token: userRegistered.access_token, isLogged: true }
+			});
+			localStorage.setItem("token", userRegistered.access_token);
 			navigate("/");
 		} else {
 			alert("Las contraseñas no coinciden");

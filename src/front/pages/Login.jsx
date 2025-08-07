@@ -1,4 +1,3 @@
-
 import React, { useState } from "react"
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 import { Link, useNavigate } from "react-router-dom";
@@ -6,7 +5,7 @@ import { login } from "../services/auth.js"
 
 export const Login = () => {
 	const navigate = useNavigate();
-	const { store, dispatch } = useGlobalReducer();
+	const { dispatch } = useGlobalReducer();
 
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -21,23 +20,28 @@ export const Login = () => {
 			"password": password,
 		}
 		const userLogged = await login(userToLogin);
-		localStorage.setItem("token", userLogged.access_token);
-		dispatch({
-			type: "LOGIN",
-			payload: { token: userLogged.access_token, isLogged: true }
-		});
-		dispatch({
-			type: "CURRENT-USER",
-			payload: userLogged.results
-		});
-		navigate("/");
+		if (userLogged) {
+			dispatch({
+				type: "CURRENT-USER",
+				payload: userLogged.results
+			});
+			dispatch({
+				type: "LOGIN",
+				payload: { token: userLogged.access_token, isLogged: true }
+			});
+			localStorage.setItem("token", userLogged.access_token);
+			navigate("/");
+		} else {
+			alert("Credenciales inválidas")
+		}
+
 	}
 
-	/* const handleCancel = () => {
+	const handleCancel = () => {
 		setEmail("");
 		setPassword("");
 		navigate("/");
-	} */
+	}
 
 	return (
 		<div className="container mt-5 mb-5" style={{ maxWidth: "500px" }}>
@@ -79,10 +83,13 @@ export const Login = () => {
 							value={password} onChange={handlePassword} />
 					</div>
 
-					{/* Botón Login */}
+					{/* Botón Login y Cancel*/}
 					<div className="d-grid mb-3">
 						<button className="btn btn-login" type="submit">
 							<i className="fas fa-user me-2"></i> Iniciar sesión
+						</button>
+						<button onClick={handleCancel} type="button" className="btn bg-secondary text-white">
+							Cancel
 						</button>
 					</div>
 

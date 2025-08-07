@@ -1,11 +1,17 @@
 const host = "https://redesigned-giggle-5g5xqxxrvjwr344vq-3001.app.github.dev"
-                
+
 
 export const getTrips = async () => {
 
   //  Declarations
   const uri = `${host}/trips`
-  const options = { method: "GET" };
+  const options = {
+    method: "GET",
+    headers: {
+      "Content-type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`
+    }
+  };
 
   //  Local Storage
   const tripsStorage = localStorage.getItem("trips-storage");
@@ -17,7 +23,7 @@ export const getTrips = async () => {
   try {
     const response = await fetch(uri, options);
     if (!response.ok) {
-    console.log(response.status, " error");
+      console.log(response.status, " error");
     }
     const tripsData = await response.json();
     localStorage.setItem("trips-storage", JSON.stringify(tripsData.results));
@@ -27,6 +33,34 @@ export const getTrips = async () => {
     console.error("Error getting trips");
   }
 };
+
+
+export const postTrips = async (newTrip) => {
+  const uri = `${host}/trips`;
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`
+    },
+    body: JSON.stringify(newTrip),
+  };
+  try {
+    const response = await fetch(uri, options);
+    if (!response.ok) {
+      console.log(response.status, " error");
+    }
+    const tripPosted = await response.json();
+    const storedTrips = JSON.parse(localStorage.getItem("trips-storage")) || [];
+    storedTrips.push(tripPosted.results);
+    localStorage.setItem("trips-storage", JSON.stringify(storedTrips));
+    return tripPosted.results;
+  }
+  catch {
+    console.error("Error posting trip");
+  }
+};
+
 
 /* export const getCharacterDetails = async (characterId) => {
 

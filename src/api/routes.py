@@ -80,9 +80,9 @@ def login():
 
     user = db.session.execute(
         db.select(Users).where(
-            Users.email == email,
-            Users.password == password,
-            Users.is_active == True
+            (Users.email == email),
+            (Users.password == password),
+            (Users.is_active == True)
         )
     ).scalar()
 
@@ -189,7 +189,7 @@ def handle_user(user_id):
         return jsonify(response_body), 200
 
     if request.method == "DELETE":
-        if current_user_id != user_id:
+        if claims["user_id"] != user_id:
             response_body["results"] = None
             response_body["message"] = f"User {current_user_id} is not authorized to delete user {user_id}"
             return jsonify(response_body), 403
@@ -197,7 +197,7 @@ def handle_user(user_id):
         user.is_active = False
         db.session.commit()
 
-        response_body["results"] = None
+        response_body["results"] = user.serialize()
         response_body["message"] = f"User {user.id} deleted successfully"
         return jsonify(response_body), 200
 

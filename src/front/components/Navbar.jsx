@@ -1,8 +1,37 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 import tripPlanningLogo from "../assets/img/trip_planning.png";
 
 
 export const Navbar = () => {
+
+	//  Declatations
+	const navigate = useNavigate();
+	const { store, dispatch } = useGlobalReducer();
+ 
+	//  Handlers
+	const handleLogIn = () => {
+		if (store.login.isLogged) {
+			localStorage.removeItem("token");
+			dispatch({
+                type: "LOGIN",
+                payload: { token: "", isLogged: false }
+            });
+			navigate("/");
+		} else {
+			navigate("/login");
+		}
+	}
+
+	const handleRegister = () => {
+		if (store.login.isLogged) {
+      const userId = store.currentUser.id;
+			navigate(`/users/${userId}`);
+		} else {
+			navigate("/register");
+		}
+	}
+
   return (
     <nav className="navbar navbar-expand-lg navbar-custom">
       <div className="container my-2">
@@ -74,16 +103,14 @@ export const Navbar = () => {
 
           {/* Botones a la derecha */}
           <div className="d-flex">
-            <Link to="/login" className="btn btn-login d-flex align-items-center gap-2">
-              <i className="fa-solid fa-circle-user"></i>
-              Iniciar sesión
-            </Link>
-
-            <Link to="/register" className="btn btn-signup d-flex align-items-center gap-2">
-              <i className="fa-solid fa-user-plus"></i>
-              Registrarse
-            </Link>
+            <button onClick={handleLogIn} type="button" className="btn btn-login d-flex align-items-center gap-2">
+              {store.login.isLogged ? "Cerrar sesión" : "Iniciar sesión"}
+            </button>
+            <button onClick={handleRegister} type="button" className="btn btn-signup d-flex align-items-center gap-2">
+              {store.login.isLogged ? "Ajustes" : "Registrarse"}
+            </button>
           </div>
+
         </div>
       </div>
     </nav>

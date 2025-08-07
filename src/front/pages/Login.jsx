@@ -40,11 +40,23 @@ export const Login = () => {
 	} */
 
 	return (
-		<div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '50vh' }}>
-			<div className="card p-4 shadow" style={{ width: '100%', maxWidth: '400px', borderRadius: '20px' }}>
-				<div className="text-center mb-4">
-					<i className="fas fa-sign-in-alt fa-3x text-warning"></i>
-					<h2 className="mt-2">Iniciar sesión</h2>
+		<div className="container mt-5 mb-5" style={{ maxWidth: "500px" }}>
+			<div className="text-center mb-4">
+				<i className="fas fa-sign-in-alt fa-3x text-warning"></i>
+				<h2 className="mt-2">Iniciar sesión</h2>
+			</div>
+
+			<form>
+				{/* Email */}
+				<div className="mb-3 input-group">
+					<span className="input-group-text">
+						<i className="fas fa-envelope"></i>
+					</span>
+					<input
+						type="email"
+						className="form-control"
+						placeholder="Correo electrónico"
+					/>
 				</div>
 
 				<form onSubmit={handleSubmitLogin}>
@@ -82,7 +94,7 @@ export const Login = () => {
 						</small>
 					</div>
 				</form>
-			</div>
+			</form>
 		</div>
 	);
 };

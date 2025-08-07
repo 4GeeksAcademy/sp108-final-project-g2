@@ -94,7 +94,7 @@ export const Login = () => {
 						</small>
 					</div>
 				</form>
-			</div>
+			</form>
 		</div>
 	);
 };

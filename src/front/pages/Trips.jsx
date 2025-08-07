@@ -1,93 +1,119 @@
 import React, { useState } from "react";
-import { Map } from "../components/Map";
-
-const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY; // Clave API desde variables de entorno
 
 export const Trips = () => {
-  // Estado del formulario
-  const [destination, setDestination] = useState("");
+  // Estado para el nombre del viaje
   const [tripName, setTripName] = useState("");
 
-  // CAMBIO - estado para el "trip" creado (null si no se creó todavía)
+  // Estado para el destino del viaje
+  const [destination, setDestination] = useState("");
+
+  // Estado booleano para saber si el viaje es público (true) o privado (false)
+  const [isPublic, setIsPublic] = useState(false);
+
+  // Estado para mostrar u ocultar el campo de invitación de amigos
+  const [showInviteInput, setShowInviteInput] = useState(false);
+
+  // Estado para almacenar los emails de los amigos invitados (separados por coma)
+  const [invitedFriends, setInvitedFriends] = useState("");
+
+  // Estado para la fecha de inicio del viaje
+  const [startDate, setStartDate] = useState("");
+
+  // Estado para la fecha de fin del viaje
+  const [endDate, setEndDate] = useState("");
+
+  // Estado para la descripción del viaje
+  const [description, setDescription] = useState("");
+
+  // Estado que guarda el viaje creado actualmente (objeto con todos los datos)
   const [currentTrip, setCurrentTrip] = useState(null);
 
-  // CAMBIO - estado global de actividades (las vinculamos al currentTrip cuando exista)
-  const [activities, setActivities] = useState([]);
+  // Simulación de viajes anteriores del usuario para mostrar en la interfaz
+  const previousTrips = [
+    {
+      id: 1,
+      name: "Viaje a París",
+      destination: "París, Francia",
+      createdAt: "2025-06-15",
+      isPublic: false,
+      image:
+        "https://images.pexels.com/photos/338515/pexels-photo-338515.jpeg?auto=compress&cs=tinysrgb&h=200",
+    },
+    {
+      id: 2,
+      name: "Aventura en Perú",
+      destination: "Cusco",
+      createdAt: "2025-05-10",
+      isPublic: true,
+      image:
+        "https://images.pexels.com/photos/1619311/pexels-photo-1619311.jpeg?auto=compress&cs=tinysrgb&h=200",
+    },
+    {
+      id: 3,
+      name: "Relajación en la playa",
+      destination: "Playa tropical",
+      createdAt: "2025-04-20",
+      isPublic: true,
+      image:
+        "https://images.pexels.com/photos/457882/pexels-photo-457882.jpeg?auto=compress&cs=tinysrgb&h=200",
+    },
+  ];
 
-  // CAMBIO - manejar submit "Crear viaje"
+  // Función para manejar la creación de un nuevo viaje cuando se envía el formulario
   const handleCreateTrip = (event) => {
     event.preventDefault();
 
-    // Validaciones sencillas
+    // Validar que el nombre del viaje no esté vacío
     if (!tripName.trim()) {
-      alert("Escribe un nombre para el viaje.");
+      alert("Por favor, escribe un nombre para el viaje.");
       return;
     }
 
-    // Crear trip en memoria (id temporal con Date.now)
+    // Crear el objeto viaje con toda la información recogida
     const newTrip = {
-      id: Date.now(),
+      id: Date.now(), // ID temporal basado en timestamp
       name: tripName.trim(),
       destination: destination.trim(),
+      isPublic, // Booleano que indica si es público o privado
+      invitedFriends: invitedFriends
+        .split(",") // Separar los emails por coma
+        .map((email) => email.trim()) // Quitar espacios en cada email
+        .filter((email) => email.length > 0), // Eliminar strings vacíos
+      startDate,
+      endDate,
+      description: description.trim(),
       createdAt: new Date().toISOString(),
-      activities: [], // se llenará cuando se vayan añadiendo
     };
 
+    // Guardar el viaje creado en el estado
     setCurrentTrip(newTrip);
 
-    // vaciar lista de actividades anterior (opcional)
-    setActivities([]);
+    // Limpiar campos de invitados y ocultar input
+    setInvitedFriends("");
+    setShowInviteInput(false);
 
-    // Mensaje pequeño
-    console.log("Trip creado:", newTrip);
+    console.log("✅ Viaje creado:", newTrip);
   };
 
-  // CAMBIO - función que recibe una nueva actividad desde Map.jsx
-  // y la asocia al trip (si existe)
-  const handleAddActivity = (activity) => {
-    if (!currentTrip) {
-      // Si no hay trip creado, avisamos al usuario
-      alert("Crea primero el viaje (botón 'Crear viaje') para guardar actividades.");
-      return;
-    }
-
-    // actividad debe ser: { id, name, lat, lng, createdAt }
-    const newActivity = {
-      ...activity,
-      id: Date.now(),
-      createdAt: new Date().toISOString(),
-    };
-
-    // actualizamos estado local de activities
-    setActivities((prev) => [...prev, newActivity]);
-
-    // y actualizamos el objeto currentTrip.activities para que refleje el vínculo
-    setCurrentTrip((prev) => {
-      if (!prev) return prev;
-      return { ...prev, activities: [...(prev.activities || []), newActivity] };
-    });
+  // Función para alternar el estado público/privado del viaje (checkbox)
+  const handleIsPublicChange = () => {
+    setIsPublic((prev) => !prev);
   };
 
-  // eliminar actividad (desde la lista bajo el mapa)
-  const handleRemoveActivity = (activityId) => {
-    setActivities((prev) => prev.filter((a) => a.id !== activityId));
-    setCurrentTrip((prev) => {
-      if (!prev) return prev;
-      return { ...prev, activities: (prev.activities || []).filter((a) => a.id !== activityId) };
-    });
+  // Función para mostrar u ocultar el campo de invitación de amigos
+  const toggleInviteInput = () => {
+    setShowInviteInput((prev) => !prev);
   };
 
   return (
     <div className="container py-5">
-      {/* Título */}
       <h2 className="mb-4 text-center">
         <i className="fas fa-route fa-2x text-warning me-2"></i>
         Planifica tu viaje
       </h2>
 
       <div className="row justify-content-center align-items-start">
-        {/* Formulario principal */}
-        <div className="col-lg-5 mb-4">
+        <div className="col-lg-6 mb-4">
           <form onSubmit={handleCreateTrip}>
             {/* Nombre del viaje */}
             <div className="mb-3 input-group">
@@ -122,7 +148,12 @@ export const Trips = () => {
               <span className="input-group-text">
                 <i className="fas fa-calendar-alt"></i>
               </span>
-              <input type="date" className="form-control" />
+              <input
+                type="date"
+                className="form-control"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
             </div>
 
             {/* Fecha fin */}
@@ -130,7 +161,12 @@ export const Trips = () => {
               <span className="input-group-text">
                 <i className="fas fa-calendar-check"></i>
               </span>
-              <input type="date" className="form-control" />
+              <input
+                type="date"
+                className="form-control"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
             </div>
 
             {/* Descripción */}
@@ -142,10 +178,53 @@ export const Trips = () => {
                 className="form-control"
                 placeholder="Descripción del viaje"
                 rows="3"
-              ></textarea>
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
             </div>
 
-            {/* Botón Crear viaje */}
+            {/* Botón para mostrar/ocultar input para invitar amigos */}
+            <div className="mb-3">
+              <button
+                type="button"
+                className="btn btn-login px-4"
+                onClick={toggleInviteInput}
+              >
+                <i className="fas fa-user-plus me-2"></i> Invitar amigos
+              </button>
+            </div>
+
+            {/* Input para emails invitados (solo visible si showInviteInput es true) */}
+            {showInviteInput && (
+              <div className="mb-3 input-group">
+                <span className="input-group-text">
+                  <i className="fas fa-user-friends"></i>
+                </span>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Emails separados por coma"
+                  value={invitedFriends}
+                  onChange={(e) => setInvitedFriends(e.target.value)}
+                />
+              </div>
+            )}
+
+            {/* Checkbox para viaje público */}
+            <div className="form-check mb-3">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="publicCheckbox"
+                checked={isPublic}
+                onChange={handleIsPublicChange}
+              />
+              <label className="form-check-label" htmlFor="publicCheckbox">
+                Hacer viaje público
+              </label>
+            </div>
+
+            {/* Botón para crear viaje */}
             <div className="text-center">
               <button className="btn btn-login px-4" type="submit">
                 <i className="fas fa-plus-circle me-2"></i>
@@ -154,69 +233,58 @@ export const Trips = () => {
             </div>
           </form>
 
-          <div className="mt-3 small text-muted">
-            Primero crea el viaje para comenzar a guardar actividades desde el mapa.
-          </div>
-        </div>
-
-        {/* Mapa + lista de actividades */}
-        <div className="col-lg-6">         
-          {/* Contenedor del mapa */}
-          <div className="rounded overflow-hidden shadow mb-2" style={{ height: "450px", position: "relative" }}>
-            {/* Map recibe el setter para notificar nuevas actividades */}
-            <Map
-              apiKey={apiKey}
-              destination={destination}
-              activities={activities}
-              onAddActivity={handleAddActivity} // CAMBIO - función que Map llamará al crear actividad
-            />
-          </div>
-
-          {/* tarjeta fija debajo del mapa (no fija en viewport, sino justo debajo) */}
-          {currentTrip ? (
-            <div className="card p-3 shadow">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 className="mb-0">{currentTrip.name}</h6>
-                  <small className="text-muted">Destino: {currentTrip.destination || "—"}</small>
-                </div>
-                <div className="text-end">
-                  <small className="text-muted">Actividades:</small>
-                  <div><strong>{(currentTrip.activities || []).length}</strong></div>
-                </div>
-              </div>
-
-              {/* Lista compacta de actividades */}
-              <div className="mt-3">
-                {activities.length === 0 ? (
-                  <p className="text-muted mb-0">Aún no hay actividades. Haz clic en el mapa para añadir.</p>
-                ) : (
-                  <ul className="list-group list-group-flush">
-                    {activities.map((act) => (
-                      <li key={act.id} className="list-group-item d-flex justify-content-between align-items-start">
-                        <div>
-                          <strong>{act.name}</strong>
-                          <div className="small text-muted">Lat: {act.lat.toFixed(5)}, Lng: {act.lng.toFixed(5)}</div>
-                        </div>
-                        <div>
-                          <button className="btn btn-sm btn-outline-danger" onClick={() => handleRemoveActivity(act.id)}>
-                            <i className="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="card p-3 shadow">
-              <p className="mb-0 text-muted">Crea el viaje para que las actividades se guarden aquí.</p>
+          {/* Mostrar detalles del viaje creado */}
+          {currentTrip && (
+            <div className="card mt-4 p-3 shadow">
+              <h5 className="mb-2">{currentTrip.name}</h5>
+              <p className="mb-1 text-muted">Destino: {currentTrip.destination}</p>
+              <p className="mb-1">
+                {currentTrip.isPublic ? "🌍 Público" : "🔒 Privado"}
+              </p>
+              {currentTrip.invitedFriends.length > 0 && (
+                <p className="mb-0 small text-muted">
+                  Invitados: {currentTrip.invitedFriends.join(", ")}
+                </p>
+              )}
+              <p className="mt-2 mb-0 small">
+                Fechas: {currentTrip.startDate || "—"} → {currentTrip.endDate || "—"}
+              </p>
+              {currentTrip.description && <p className="mt-2">{currentTrip.description}</p>}
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Mostrar viajes anteriores */}
+      <div className="mt-5">
+        <h4 className="mb-3">Mis viajes anteriores</h4>
+        <div className="row">
+          {previousTrips.map((trip) => (
+            <div className="col-md-6 col-lg-4 mb-3" key={trip.id}>
+              <div className="card shadow-sm">
+                <img
+                  src={trip.image}
+                  alt={`Foto del viaje ${trip.name}`}
+                  className="card-img-top"
+                  style={{ objectFit: "cover", height: "200px" }}
+                />
+                <div className="card-body">
+                  <h5 className="card-title">{trip.name}</h5>
+                  <p className="card-text text-muted mb-1">Destino: {trip.destination}</p>
+                  <p className="card-text small">
+                    Creado el: {new Date(trip.createdAt).toLocaleDateString()}
+                  </p>
+                  <span
+                    className={`badge ${trip.isPublic ? "bg-success" : "bg-secondary"}`}
+                  >
+                    {trip.isPublic ? "Público" : "Privado"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
 };
-

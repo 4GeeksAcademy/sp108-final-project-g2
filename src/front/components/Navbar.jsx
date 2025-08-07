@@ -43,7 +43,7 @@ export const Navbar = () => {
               </Link>
             </li>
             <li className="nav-item">
-              <Link to="/activity-stories" className="nav-link text-white">
+              <Link to="/my-stories" className="nav-link text-white">
                 Stories
               </Link>
             </li>

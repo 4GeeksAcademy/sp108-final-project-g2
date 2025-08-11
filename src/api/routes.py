@@ -90,7 +90,7 @@ def login():
         response_body["results"] = None
         response_body["message"] = "Invalid credentials"
         return jsonify(response_body), 401
-
+    
     claims = {
         "user_id": user.id,
         "email": user.email,
@@ -202,7 +202,7 @@ def handle_user(user_id):
         return jsonify(response_body), 200
 
 
-@api.route("/trips", methods=["GET", "POST"])
+@api.route("/trips", methods=["GET"])
 @jwt_required()
 def handle_trips():
     response_body = {}
@@ -237,6 +237,18 @@ def handle_trips():
         response_body["results"] = {"user_trips": user_results, 
                                     "trips_owner": owner_results}
         return jsonify(response_body), 200
+    
+
+@api.route("/create-trip", methods=["POST"])
+@jwt_required()
+def handle_create_trip():
+    response_body = {}
+    claims = get_jwt()
+    token_user_id = claims["user_id"]
+    if not token_user_id:
+        response_body["message"] = "User not found"
+        response_body["results"] = None
+        return jsonify(response_body), 404
     if request.method == "POST":
         data = request.json
         trip_owner_id = token_user_id
@@ -364,14 +376,17 @@ def handle_trip_users(trip_id):
             response_body["results"] = None
             return jsonify(response_body), 403
         data = request.json
-        user_id = data.get("user_id", None)
-        user = db.session.execute(db.select(Users).where(Users.id == user_id)).scalar()
+        user_email = data.get("user_email", None) # user email
+        print(user_email)
+        user = db.session.execute(db.select(Users).where(Users.email == user_email)).scalar()
+        print(user)
         if not user:
-            response_body["message"] = f"User {user_id} not found"
+            response_body["message"] = f"User {user_email} not found"
             response_body["results"] = None
             return jsonify(response_body), 404
+        user_id = user.id
         user_already_exists =  db.session.execute(db.select(UserTrips).where(UserTrips.trip_id == trip_id,
-                                                                             UserTrips.user_id == user_id)).scalar()
+                                                                             UserTrips.user_id == user_id)).scalar()                                           
         if user_already_exists:
             response_body["message"] = f"User {user_id} is already associated with trip {trip_id}"
             response_body["results"] = None

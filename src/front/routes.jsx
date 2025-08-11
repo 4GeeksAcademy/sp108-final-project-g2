@@ -11,11 +11,10 @@ import { TripUsers } from "./pages/TripUsers.jsx";
 import { TripUserDetails } from "./pages/TripUserDetails.jsx";
 import { Activities } from "./pages/Activities.jsx";
 import { ActivityDetails } from "./pages/ActivityDetails.jsx";
-
 import { StoryDetails } from "./pages/StoryDetails.jsx";
 import { Contact } from "./pages/Contact.jsx";
 import { MyStories } from "./pages/MyStories.jsx";
-
+import { CreateTrip } from "./pages/CreateTrip.jsx";
 
 
 
@@ -38,6 +37,7 @@ export const router = createBrowserRouter (
         <Route path="/register" element={<Register />} />
         <Route path="/users/:user_id" element={<ProfileSettings />} />
         <Route path="/trips" element={<Trips />} />
+        <Route path="/create-trip" element={<CreateTrip />} />
         <Route path="/trips/:trip_id" element={<TripDetails />} />
         <Route path="/trips/:trip_id/users" element={<TripUsers />} />
         <Route path="/trips/:trip_id/users/:user_id" element={<TripUserDetails />} />

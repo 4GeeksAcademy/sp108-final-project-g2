@@ -13,6 +13,8 @@ export const Navbar = () => {
 	const handleLogIn = () => {
 		if (store.login.isLogged) {
 			localStorage.removeItem("token");
+      localStorage.removeItem("current-user");
+      localStorage.removeItem("trips-storage");
 			dispatch({
                 type: "LOGIN",
                 payload: { token: "", isLogged: false }

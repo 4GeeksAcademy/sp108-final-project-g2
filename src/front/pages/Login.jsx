@@ -30,6 +30,7 @@ export const Login = () => {
 				payload: { token: userLogged.access_token, isLogged: true }
 			});
 			localStorage.setItem("token", userLogged.access_token);
+			localStorage.setItem("current-user", JSON.stringify(userLogged.results))
 			navigate("/");
 		} else {
 			alert("Credenciales inválidas")

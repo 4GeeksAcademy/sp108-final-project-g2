@@ -99,8 +99,8 @@ export const Activities = () => {
               <span className="input-group-text"><i className="fas fa-tag"></i></span>
               <input
                 name="name"
-                value={form.name}
-                onChange={handleChange}
+                value={activityName}
+                onChange={handleActivityName}
                 className="form-control"
                 placeholder="Nombre de la actividad"
               />

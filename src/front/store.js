@@ -1,17 +1,27 @@
 export const initialStore = () => {
+  const token = localStorage.getItem("token")
+  const currentUser = localStorage.getItem("current-user")
+  const currentUserFormatted = currentUser ? JSON.parse(currentUser) : {}
   return {
     login: {
-      token: "",
-      isLogged: false
+      token: token,
+      isLogged: token ? true : false
     },
-    currentUser: {},
-    trips: [],
-    tripsToPost: {},
-  }
-}
+    currentUser: currentUserFormatted,
+    trips: {
+      userTrips: [],
+      tripsOwner: []
+    },
+    tripDetail: {},
+    // formulario se renderiza si eres owner y meter correo electrónico. si el correo electrónico existe 
+    activityDetail: {}
+    // modal para ver la imagen en grande
+
+  };
+};
 
 export default function storeReducer(store, action = {}) {
-  switch(action.type) {
+  switch (action.type) {
 
     case "LOGIN":
       return { ...store, login: action.payload };
@@ -22,11 +32,28 @@ export default function storeReducer(store, action = {}) {
     case "GET-TRIPS":
       return { ...store, trips: action.payload };
 
-    case "POST-TRIPS":
-      return { ...store, tripsToPost: action.payload };
-      
+    case "POST-TRIP":
+      return {
+        ...store, trips: {
+          ...store.trips, tripsOwner: [
+            ...store.trips.tripsOwner, action.payload]
+        }
+      };
+
+    case "PUT-TRIP":
+      return {
+        ...store,
+        trips: {
+          ...store.trips, tripsOwner: 
+          store.trips.tripsOwner.map(trip =>
+            trip.id === action.payload.id ? action.payload : trip
+          )
+        }
+      };
+
     default:
       throw Error('Unknown action.');
 
-    }    
-}
+  };
+};
+

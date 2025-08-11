@@ -314,8 +314,10 @@ def handle_trip(trip_id):
             return jsonify(response_body), 403
         data_input = request.json
         trip.title = data_input.get("title", trip.title)
-        trip.start_date = data_input.get("start_date", trip.start_date)
-        trip.end_date = data_input.get("end_date", trip.end_date)
+        start_date_string = data_input.get("start_date")
+        end_date_string = data_input.get("end_date")
+        trip.start_date = datetime.strptime(start_date_string, "%Y-%m-%d").date() if start_date_string else None
+        trip.end_date = datetime.strptime(end_date_string, "%Y-%m-%d").date() if end_date_string else None
         trip.publicated = data_input.get("publicated", trip.publicated)
         db.session.commit()
         response_body["results"] = trip.serialize()

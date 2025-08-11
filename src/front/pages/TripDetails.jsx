@@ -45,9 +45,9 @@ export const TripDetails = () => {
     navigate(`/trips/${tripId}/activities`);
   };
 
-  /* const handleDeleteTrip = async () => {
+  const handleDeleteTrip = async () => {
     if (trip) {
-      const tripDeleted = await deleteTrip(trip.id);
+      const tripDeleted = await deleteTrip(trip);
       dispatch({
         type: "DELETE-TRIP",
         payload: tripDeleted
@@ -56,7 +56,7 @@ export const TripDetails = () => {
     } else {
       return alert("Credenciales inválidas");
     }
-  } */
+  }
 
   return (
     <div className="container py-5">
@@ -114,16 +114,17 @@ export const TripDetails = () => {
                 Cancelar
               </button>
             </div>
-          </form> 
+          </form>
+          <button onClick={handleDeleteTrip} type="button" className="btn bg-danger text-white">
+            Eliminar viaje
+          </button>
         </div>
       </div>
     </div>
   );
 };
 
-/* <button onClick={handleDeleteTrip} type="button" className="btn bg-danger text-white">
-  Eliminar viaje
-</button> */
+
 
 
 /* const handleAddActivity = (e) => {

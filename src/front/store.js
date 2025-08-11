@@ -44,10 +44,19 @@ export default function storeReducer(store, action = {}) {
       return {
         ...store,
         trips: {
-          ...store.trips, tripsOwner: 
-          store.trips.tripsOwner.map(trip =>
-            trip.id === action.payload.id ? action.payload : trip
-          )
+          ...store.trips, tripsOwner:
+            store.trips.tripsOwner.map(trip =>
+              trip.id === action.payload.id ? action.payload : trip
+            )
+        }
+      };
+
+    case "PUT-TRIP":
+      return {
+        ...store,
+        trips: {
+          ...store.trips, tripsOwner:
+            store.trips.tripsOwner.filter(trip => trip.id !== action.payload.id)
         }
       };
 

@@ -82,8 +82,6 @@ export const putTrip = async (tripId, tripToPut) => {
       console.log(response.status, " error");
     }
     const tripPut = await response.json();
-    /* Local storage
-    Alternativa: await getTrips() */
     const storedTrips = JSON.parse(localStorage.getItem("trips-storage"));
     storedTrips.tripsOwner = storedTrips.tripsOwner.map(trip =>
       trip.id === tripId ? tripPut.results : trip);
@@ -95,8 +93,8 @@ export const putTrip = async (tripId, tripToPut) => {
   }
 }
 
-/* export const deleteTrip = async (tripId) => {
-  const uri = `${host}/api/trips/${tripId}`;
+export const deleteTrip = async (tripToDelete) => {
+  const uri = `${host}/api/trips/${tripToDelete.id}`;
   const options = {
     method: "DELETE",
     headers: {
@@ -110,13 +108,13 @@ export const putTrip = async (tripId, tripToPut) => {
       console.log(response.status, " error");
       return false;
     }
+    const tripDeleted = tripToDelete
     const storedTrips = JSON.parse(localStorage.getItem("trips-storage"));
-    storedTrips.tripsOwner = storedTrips.tripsOwner.map(trip =>
-      trip.id === tripId ? {} : trip);
+    storedTrips.tripsOwner = storedTrips.tripsOwner.filter(trip => trip.id !== tripDeleted.id);
     localStorage.setItem("trips-storage", JSON.stringify(storedTrips));
-    return false;
+    return tripDeleted;
   }
   catch {
     console.error("Error deleting trip");
   }
-}; */
+};

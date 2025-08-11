@@ -59,6 +59,9 @@
 /* Estilos para el toggler hamburguesa en navbar (menu colapsable móvil) */
 .custom-toggler {
   border-color: #F4B400; /* Borde amarillo */
+  border: none !important; /* Elimina cualquier borde */
+  outline: none !important; /* Quita el contorno al enfocar */
+  box-shadow: none !important; /* Elimina la sombra que parece borde */
 }
 
 .custom-toggler .navbar-toggler-icon {
@@ -240,6 +243,15 @@
   margin-top: 2rem;
   text-align: center;
 }
+
+@media (max-width: 576px) {
+  .btn-login,
+  .btn-signup {
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.8rem !important;
+  }
+}
+
 
 /* =======================
    SECCIÓN BENEFICIOS
@@ -431,5 +443,8 @@
 .btn-login:hover {
   background-color: #F4B400;
   color: #0B234F;
+}
+ .text-shadow {
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
 }
 

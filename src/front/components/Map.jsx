@@ -1,58 +1,57 @@
-import React, { useEffect, useRef } from "react";
-/*
-Props:
- - apiKey
- - destination
- - activities (opcional; se usan para dibujar marcadores)
- - onAddActivity (función) -> signature: (activity) => void
-*/
+import React, { useEffect, useRef, useState } from "react";
+
 export const Map = ({ apiKey, destination, activities = [], onAddActivity }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const markersRef = useRef([]);
-  // Cargar script e inicializar mapa (solo una vez por apiKey)
+  const placesServiceRef = useRef(null);
+
+  // Estado para guardar place seleccionado y detalles
+  const [selectedPlace, setSelectedPlace] = useState(null);
+
+  // Inicializar mapa y servicio Places
   useEffect(() => {
     function initMap() {
       if (!mapRef.current || mapInstance.current) return;
+
       mapInstance.current = new window.google.maps.Map(mapRef.current, {
-        center: { lat: 40.4168, lng: -3.7038 },
+        center: { lat: 40.4168, lng: -3.7038 }, // Madrid
         zoom: 12,
       });
-      // listener de clic para crear actividad y notificar al padre
+
+      placesServiceRef.current = new window.google.maps.places.PlacesService(mapInstance.current);
+
       mapInstance.current.addListener("click", (e) => {
-        const lat = e.latLng.lat();
-        const lng = e.latLng.lng();
-        // Pedimos nombre (prompt para simplicidad)
-        const name = window.prompt("Nombre de la actividad (Cancelar para abortar):");
-        if (!name) return;
-        const activity = { name: name.trim(), lat, lng };
-        // Crear marcador local inmediato para feedback visual
-        const marker = new window.google.maps.Marker({
-          position: { lat, lng },
-          map: mapInstance.current,
-          title: activity.name,
-        });
-        // Guardar marcador en memoria (se limpiará cuando activities cambien)
-        markersRef.current.push(marker);
-        // Notificar al componente padre para que guarde la actividad (en state y en trip)
-        if (typeof onAddActivity === "function") {
-          onAddActivity(activity);
-        }
+        const latLng = e.latLng;
+
+        // Buscar lugar cercano
+        placesServiceRef.current.nearbySearch(
+          {
+            location: latLng,
+            radius: 50, // 50 metros
+            rankBy: window.google.maps.places.RankBy.PROMINENCE,
+          },
+          (results, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
+              const place = results[0];
+              // Obtener detalles completos
+              placesServiceRef.current.getDetails({ placeId: place.place_id }, (details, status2) => {
+                if (status2 === window.google.maps.places.PlacesServiceStatus.OK) {
+                  // Guardar info completa
+                  setSelectedPlace(details);
+                } else {
+                  alert("Error al obtener detalles del lugar");
+                }
+              });
+            } else {
+              alert("No se encontró un lugar cercano, puedes crear una actividad manual");
+            }
+          }
+        );
       });
     }
-    function geocodeAddress(address) {
-      if (!address || !window.google) return;
-      const geocoder = new window.google.maps.Geocoder();
-      geocoder.geocode({ address }, (results, status) => {
-        if (status === "OK" && results[0]) {
-          mapInstance.current.setCenter(results[0].geometry.location);
-         
-        } else {
-          console.warn("Geocoding status:", status);
-        }
-      });
-    }
-    // Cargar script una vez
+
+    // Carga script Google Maps
     if (!window.google && apiKey) {
       const existing = document.querySelector('script[src^="https://maps.googleapis.com/maps/api/js"]');
       if (!existing) {
@@ -62,7 +61,6 @@ export const Map = ({ apiKey, destination, activities = [], onAddActivity }) => 
         script.defer = true;
         window.__initMap = () => {
           initMap();
-          geocodeAddress(destination);
         };
         document.head.appendChild(script);
       } else {
@@ -70,42 +68,132 @@ export const Map = ({ apiKey, destination, activities = [], onAddActivity }) => 
           if (window.google && window.google.maps) {
             clearInterval(check);
             initMap();
-            geocodeAddress(destination);
           }
         }, 200);
       }
     } else if (window.google && window.google.maps) {
       initMap();
-      geocodeAddress(destination);
     }
+
     return () => {
       try {
         delete window.__initMap;
-      } catch (e) {}
+      } catch {}
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiKey]);
-  // Effect para sincronizar marcadores con array activities (cuando cambia)
+
+  // Sincronizar marcadores con actividades
   useEffect(() => {
-    // limpiar marcadores anteriores
     markersRef.current.forEach((m) => m.setMap(null));
     markersRef.current = [];
     if (!mapInstance.current) return;
+
     activities.forEach((act) => {
+      if (!act.placeInfo?.lat || !act.placeInfo?.lng) return;
+
       const marker = new window.google.maps.Marker({
-        position: { lat: Number(act.lat), lng: Number(act.lng) },
+        position: { lat: Number(act.placeInfo.lat), lng: Number(act.placeInfo.lng) },
         map: mapInstance.current,
         title: act.name || "",
       });
       const infowindow = new window.google.maps.InfoWindow({
-        content: `<div><strong>${(act.name || "").replace(/</g, "&lt;")}</strong><br/><small>Lat:${act.lat.toFixed(5)}, Lng:${act.lng.toFixed(5)}</small></div>`,
+        content: `<div><strong>${(act.name || "").replace(/</g, "&lt;")}</strong><br/>
+                  ${act.placeInfo.address ? act.placeInfo.address : ""}
+                  </div>`,
       });
       marker.addListener("click", () => {
         infowindow.open({ anchor: marker, map: mapInstance.current, shouldFocus: false });
       });
       markersRef.current.push(marker);
     });
-   
   }, [activities]);
-  return <div ref={mapRef} style={{ width: "100%", height: "100%", minHeight: "100%" }} />;
+
+  // Función para confirmar y enviar actividad desde modal (la recibe padre)
+  const confirmActivity = (time) => {
+    if (!selectedPlace) return;
+    onAddActivity({
+      id: Date.now(),
+      name: selectedPlace.name,
+      time,
+      description: selectedPlace.formatted_address || "",
+      completed: false,
+      source: "map",
+      placeInfo: {
+        place_id: selectedPlace.place_id,
+        address: selectedPlace.formatted_address,
+        url: selectedPlace.url,
+        photoUrl:
+          selectedPlace.photos && selectedPlace.photos.length > 0
+            ? selectedPlace.photos[0].getUrl()
+            : null,
+        lat: selectedPlace.geometry.location.lat(),
+        lng: selectedPlace.geometry.location.lng(),
+      },
+    });
+    setSelectedPlace(null);
+  };
+
+  return (
+    <>
+      <div ref={mapRef} style={{ width: "100%", height: 400 }}></div>
+
+      {/* Modal simple para confirmar info */}
+      {selectedPlace && (
+        <div
+          style={{
+            position: "fixed",
+            top: 20,
+            right: 20,
+            backgroundColor: "white",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            padding: 15,
+            maxWidth: 320,
+            zIndex: 1000,
+            boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
+          }}
+        >
+          <h5>{selectedPlace.name}</h5>
+          {selectedPlace.photos && selectedPlace.photos.length > 0 && (
+            <img
+              src={selectedPlace.photos[0].getUrl()}
+              alt={selectedPlace.name}
+              style={{ width: "100%", borderRadius: 6, marginBottom: 10 }}
+            />
+          )}
+          <p>{selectedPlace.formatted_address}</p>
+          <p>
+            <a href={selectedPlace.url} target="_blank" rel="noreferrer">
+              Ver en Google Maps
+            </a>
+          </p>
+
+          <label>
+            Hora de la actividad:
+            <input
+              type="time"
+              onChange={(e) => setSelectedPlace((p) => ({ ...p, userTime: e.target.value }))}
+              value={selectedPlace.userTime || ""}
+              style={{ marginLeft: 10 }}
+            />
+          </label>
+
+          <div style={{ marginTop: 10 }}>
+            <button
+              onClick={() => confirmActivity(selectedPlace.userTime || null)}
+              className="btn btn-login me-2"
+            >
+              Añadir actividad
+            </button>
+            <button
+              onClick={() => setSelectedPlace(null)}
+              className="btn btn-outline-secondary"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
 };

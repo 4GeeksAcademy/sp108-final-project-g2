@@ -70,23 +70,37 @@ export const Login = () => {
 						value={password} onChange={handlePassword} />
 				</div>
 
-				{/* Botón Login y Cancel*/}
-				<div className="d-grid mb-3">
-					<button className="btn btn-login" type="submit">
-						<i className="fas fa-user me-2"></i> Iniciar sesión
-					</button>
-					<button onClick={handleCancel} type="button" className="btn bg-secondary text-white">
-						Cancel
-					</button>
-				</div>
 
-				{/* Enlace a registro */}
-				<div className="text-center">
-					<small>
-						¿No tienes una cuenta?
-						<Link to="/register"> Regístrate aquí</Link>
-					</small>
-				</div>
+					{/* Botón Login y Cancel*/}
+					<div className="d-grid mb-3">
+						<button className="btn btn-login" type="submit">
+							 <i className="fas fa-user"></i> Iniciar sesión
+						</button>
+					</div>
+					<div className="d-grid mb-3">
+						<button onClick={handleCancel} type="button" className="btn btn-login">
+							<i className="fas fa-times me-2"></i> Cancelar
+
+						</button>
+					</div>
+
+					{/* Enlace a recuperar contraseña */}
+					<div className="text-center mb-3">
+						<small>
+							¿Olvidaste tu contraseña?{" "}
+							<Link to="/forgot-password">Recupérala aquí</Link>
+						</small>
+					</div>
+
+					{/* Enlace a registro */}
+					<div className="text-center">
+						<small>
+							¿No tienes una cuenta?
+							<Link to="/register"> Regístrate aquí</Link>
+						</small>
+					</div>
+				</form>
+
 			</form>
 		</div>
 	);

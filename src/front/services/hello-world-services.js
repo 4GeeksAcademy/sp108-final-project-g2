@@ -35,7 +35,7 @@ export const getTrips = async () => {
 
 
 export const postTrips = async (newTrip) => {
-  const uri = `${host}/trips`;
+  const uri = `${host}/api/create-trip`;
   const options = {
     method: "POST",
     headers: {

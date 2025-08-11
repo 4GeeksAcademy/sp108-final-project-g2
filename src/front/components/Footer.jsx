@@ -14,7 +14,6 @@ export const Footer = () => {
 					<ul className="list-unstyled">
 						<li><a className="text-light text-decoration-none" href="/trips">Mis viajes</a></li>
 						<li><a className="text-light text-decoration-none" href="/trips/new">Crear viaje</a></li>
-						<li><a className="text-light text-decoration-none" href="/about">Sobre nosotros</a></li>
 						<li><a className="text-light text-decoration-none" href="/contact">Contacto</a></li>
 					</ul>
 				</div>

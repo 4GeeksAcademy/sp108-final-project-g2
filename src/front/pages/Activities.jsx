@@ -1,239 +1,251 @@
 import React, { useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { Map } from "../components/Map.jsx"; // Ajusta si hace falta
+import { Map } from "../components/Map.jsx";
+
+const initialDays = [
+  { id: 1, label: "Día 1", date: "2025-08-08" },
+  { id: 2, label: "Día 2", date: "2025-08-09" },
+  { id: 3, label: "Día 3", date: "2025-08-10" },
+];
 
 export const Activities = () => {
-  const { trip_id } = useParams();
+  const [days] = useState(initialDays);
+  const [selectedDayId, setSelectedDayId] = useState(days[0].id);
 
-  const initialActivities = [
-    {
-      id: 1,
-      name: "Paseo en el Retiro",
-      description: "Paseo agradable en el parque Retiro",
-      date: "2025-08-08",
-      time: "10:00",
-      address: "Parque del Retiro, Madrid, España",
-      lat: 40.4154,
-      lng: -3.6840,
-      source: "manual",
-      createdAt: new Date().toISOString(),
-    },
-  ];
-
-  const [activities, setActivities] = useState(initialActivities);
-
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    date: "",
-    time: "",
-    address: "",
+  // actividades por día
+  const [activitiesByDay, setActivitiesByDay] = useState({
+    1: [],
+    2: [],
+    3: [],
   });
 
-  const [mapSelectionActive, setMapSelectionActive] = useState(false);
+  // formulario para actividades manuales
+  const [form, setForm] = useState({ name: "", time: "", description: "" });
+  const [editingId, setEditingId] = useState(null);
 
-  const handleChange = (e) => {
+  const handleFormChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  // Agregar actividad manual o de mapa (cuando onAddActivity es llamada)
+  const handleAddActivity = (activity) => {
+    setActivitiesByDay((prev) => ({
+      ...prev,
+      [selectedDayId]: [...(prev[selectedDayId] || []), activity],
+    }));
+    setForm({ name: "", time: "", description: "" });
+    setEditingId(null);
+  };
+
+  // Borrar actividad
+  const handleDeleteActivity = (id) => {
+    setActivitiesByDay((prev) => ({
+      ...prev,
+      [selectedDayId]: prev[selectedDayId].filter((a) => a.id !== id),
+    }));
+  };
+
+  // Toggle completar actividad
+  const handleToggleCompleted = (id) => {
+    setActivitiesByDay((prev) => ({
+      ...prev,
+      [selectedDayId]: prev[selectedDayId].map((a) =>
+        a.id === id ? { ...a, completed: !a.completed } : a
+      ),
+    }));
+  };
+
+  // Editar actividad
+  const handleStartEdit = (activity) => {
+    setEditingId(activity.id);
+    setForm({
+      name: activity.name,
+      time: activity.time || "",
+      description: activity.description || "",
+    });
+  };
+
+  // Guardar edición
+  const handleSaveEdit = (e) => {
     e.preventDefault();
     if (!form.name.trim()) {
-      alert("Por favor escribe un nombre para la actividad.");
+      alert("Escribe un nombre para la actividad");
       return;
     }
-    const newActivity = {
-      id: Date.now(),
-      name: form.name.trim(),
-      description: form.description.trim(),
-      date: form.date || null,
-      time: form.time || null,
-      address: form.address.trim() || null,
-      lat: null,
-      lng: null,
-      source: "manual",
-      createdAt: new Date().toISOString(),
-    };
-    setActivities((prev) => [...prev, newActivity]);
-    setForm({ name: "", description: "", date: "", time: "", address: "" });
+    setActivitiesByDay((prev) => ({
+      ...prev,
+      [selectedDayId]: prev[selectedDayId].map((a) =>
+        a.id === editingId
+          ? { ...a, name: form.name.trim(), time: form.time, description: form.description }
+          : a
+      ),
+    }));
+    setEditingId(null);
+    setForm({ name: "", time: "", description: "" });
   };
 
-  const handleAddActivityFromMap = (activity) => {
-    const newActivity = {
-      id: Date.now(),
-      name: activity.name || "Actividad (desde mapa)",
-      description: activity.description || "",
-      date: activity.date || null,
-      time: activity.time || null,
-      address: activity.address || "",
-      lat: activity.lat,
-      lng: activity.lng,
-      place_id: activity.place_id || null,
-      source: "map",
-      createdAt: new Date().toISOString(),
-    };
-    setActivities((prev) => [...prev, newActivity]);
-    setMapSelectionActive(false);
+  // Cancelar edición
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setForm({ name: "", time: "", description: "" });
   };
 
-  const handleDelete = (id) => {
-    setActivities((prev) => prev.filter((a) => a.id !== id));
-  };
+  const activities = activitiesByDay[selectedDayId] || [];
 
   return (
-    <div className="container py-5">
-      {/* Título */}
-      <div className="text-center mb-4">
-        <h2 className="mb-1">
-          <i className="fas fa-list-check me-2 text-warning"></i>
-          Actividades del viaje
-        </h2>
-        <small className="text-muted d-block mb-3">Trip ID: {trip_id || "—"}</small>
+    <div className="container py-4">
+      {/* Selector de días */}
+      <div className="mb-4 d-flex gap-2 justify-content-center">
+        {days.map((day) => (
+          <button
+            key={day.id}
+            className={`btn btn-outline-primary ${day.id === selectedDayId ? "active" : ""}`}
+            onClick={() => {
+              setSelectedDayId(day.id);
+              setEditingId(null);
+              setForm({ name: "", time: "", description: "" });
+            }}
+          >
+            {day.label}
+          </button>
+        ))}
       </div>
 
-      <div className="row">
-        {/* Formulario manual */}
-        <div className="col-lg-5 mb-4">
-          <form onSubmit={handleSubmit}>
-            <div className="mb-2 input-group">
-              <span className="input-group-text"><i className="fas fa-tag"></i></span>
-              <input
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                className="form-control"
-                placeholder="Nombre de la actividad"
-              />
-            </div>
+      {/* Mapa */}
+      <div className="mb-4" style={{ height: 400 }}>
+        <Map
+          apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+          destination="Madrid"
+          activities={activities}
+          onAddActivity={handleAddActivity}
+        />
+      </div>
 
-            <div className="mb-2 input-group">
-              <span className="input-group-text"><i className="fas fa-align-left"></i></span>
-              <input
-                name="description"
-                value={form.description}
-                onChange={handleChange}
-                className="form-control"
-                placeholder="Descripción (opcional)"
-              />
-            </div>
-
-            <div className="mb-2 d-flex gap-2">
-              <div className="input-group flex-fill">
-                <span className="input-group-text"><i className="fas fa-calendar-alt"></i></span>
+      {/* Lista actividades */}
+      <h4>Actividades para {days.find((d) => d.id === selectedDayId)?.label}</h4>
+      {activities.length === 0 ? (
+        <p className="text-muted">No hay actividades para este día.</p>
+      ) : (
+        <ul className="list-group mb-4">
+          {activities.map((act) => (
+            <li
+              key={act.id}
+              className={`list-group-item d-flex justify-content-between align-items-center ${
+                act.completed ? "list-group-item-success" : ""
+              }`}
+            >
+              <div className="d-flex align-items-center gap-3">
                 <input
-                  name="date"
-                  value={form.date}
-                  onChange={handleChange}
-                  type="date"
-                  className="form-control"
+                  type="checkbox"
+                  checked={act.completed}
+                  onChange={() => handleToggleCompleted(act.id)}
                 />
+                <div>
+                  <strong>{act.name}</strong>{" "}
+                  {act.time && <small className="text-muted">({act.time})</small>}
+                  {act.description && <div>{act.description}</div>}
+                  {act.source === "map" && act.placeInfo && (
+                    <small className="text-info d-block">
+                      <a href={act.placeInfo.url} target="_blank" rel="noreferrer">
+                        Ver en Google Maps
+                      </a>
+                    </small>
+                  )}
+                </div>
               </div>
-              <div className="input-group" style={{ width: 150 }}>
-                <span className="input-group-text"><i className="fas fa-clock"></i></span>
-                <input
-                  name="time"
-                  value={form.time}
-                  onChange={handleChange}
-                  type="time"
-                  className="form-control"
-                />
+              <div>
+                <button
+                  className="btn btn-sm btn-outline-secondary me-2"
+                  onClick={() => handleStartEdit(act)}
+                >
+                  <i className="fas fa-edit"></i>
+                </button>
+                <button
+                  className="btn btn-sm btn-outline-danger"
+                  onClick={() => handleDeleteActivity(act.id)}
+                >
+                  <i className="fas fa-trash-alt"></i>
+                </button>
               </div>
-            </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
-            <div className="mb-3 input-group">
-              <span className="input-group-text"><i className="fas fa-map-marker-alt"></i></span>
-              <input
-                name="address"
-                value={form.address}
-                onChange={handleChange}
-                className="form-control"
-                placeholder="Dirección (opcional)"
-              />
-            </div>
+      {/* Formulario añadir o editar actividad manual */}
+      <div className="card p-3">
+        <h5>{editingId ? "Editar actividad" : "Añadir actividad manual"}</h5>
+        <form onSubmit={editingId ? handleSaveEdit : (e) => {
+          e.preventDefault();
+          if (!form.name.trim()) {
+            alert("Escribe un nombre para la actividad");
+            return;
+          }
+          handleAddActivity({
+            id: Date.now(),
+            name: form.name.trim(),
+            time: form.time || null,
+            description: form.description.trim() || "",
+            completed: false,
+            source: "manual",
+            placeInfo: null,
+          });
+          setForm({ name: "", time: "", description: "" });
+        }}>
+          <div className="mb-2">
+            <label htmlFor="name" className="form-label">
+              Nombre <span className="text-danger">*</span>
+            </label>
+            <input
+              id="name"
+              name="name"
+              className="form-control"
+              value={form.name}
+              onChange={handleFormChange}
+              required
+            />
+          </div>
+          <div className="mb-2">
+            <label htmlFor="time" className="form-label">
+              Hora
+            </label>
+            <input
+              id="time"
+              name="time"
+              type="time"
+              className="form-control"
+              value={form.time}
+              onChange={handleFormChange}
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="description" className="form-label">
+              Descripción
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              className="form-control"
+              rows={3}
+              value={form.description}
+              onChange={handleFormChange}
+            />
+          </div>
 
-            <div className="d-grid gap-2">
-              <button type="submit" className="btn-login px-4">
-                <i className="fas fa-plus-circle me-2"></i> Añadir actividad
-              </button>
-
+          <div className="d-flex gap-2">
+            <button type="submit" className="btn btn-login">
+              {editingId ? "Guardar cambios" : "Añadir actividad"}
+            </button>
+            {editingId && (
               <button
                 type="button"
-                className={`btn-login px-4 ${mapSelectionActive ? "btn-warning" : ""}`}
-                onClick={() => setMapSelectionActive((v) => !v)}
+                className="btn btn-outline-secondary"
+                onClick={handleCancelEdit}
               >
-                <i className="fas fa-map-marker-alt me-2"></i>
-                {mapSelectionActive ? "Modo selección activado" : "Activar selección mapa"}
+                Cancelar
               </button>
-            </div>
-
-            {mapSelectionActive && (
-              <div className="alert alert-info mt-3">
-                <strong>Modo selección activo:</strong> Haz clic en el mapa para añadir una actividad.
-              </div>
             )}
-          </form>
-        </div>
-
-        {/* Mapa siempre visible */}
-        <div className="col-lg-7" style={{ height: 460 }}>
-          <Map
-            apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-            destination={form.address || "Madrid"}
-            activities={activities}
-            onAddActivity={handleAddActivityFromMap}
-            enableSelection={mapSelectionActive}
-          />
-        </div>
-      </div>
-
-      {/* Lista de actividades */}
-      <div className="row mt-4">
-        <div className="col">
-          <h5 className="mb-2">Actividades ({activities.length})</h5>
-          {activities.length === 0 ? (
-            <p className="text-muted">No hay actividades todavía.</p>
-          ) : (
-            <ul className="list-group">
-              {activities.map((act) => (
-                <li key={act.id} className="list-group-item d-flex justify-content-between align-items-start">
-                  <div>
-                    <strong>{act.name}</strong>
-                    <div className="small text-muted">
-                      {act.address ? act.address + " · " : ""}
-                      {act.date ? `${act.date}${act.time ? " " + act.time : ""}` : ""}
-                      {act.source ? ` · fuente: ${act.source}` : ""}
-                    </div>
-                    {act.description && <div className="mt-1">{act.description}</div>}
-                  </div>
-
-                  <div className="d-flex flex-column align-items-end">
-                    <small className="text-muted">{new Date(act.createdAt).toLocaleString()}</small>
-                    <div className="mt-2">
-                      <button className="btn btn-sm btn-outline-secondary me-2" title="Editar">
-                        <i className="fas fa-edit"></i>
-                      </button>
-                      <button
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={() => handleDelete(act.id)}
-                        title="Eliminar"
-                      >
-                        <i className="fas fa-trash-alt"></i>
-                      </button>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
-
-      {/* Botón volver */}
-      <div className="text-center mt-4">
-        <Link to={`/trips/${trip_id || ""}`} className="btn btn-login px-4">
-          <i className="fas fa-arrow-left me-2"></i>
-          Volver al viaje
-        </Link>
+          </div>
+        </form>
       </div>
     </div>
   );

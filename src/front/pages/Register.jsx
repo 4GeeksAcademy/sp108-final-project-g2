@@ -19,6 +19,8 @@ export const Register = () => {
 	const handleFirstName = event => setFirstName(event.target.value);
 	const handleLastName = event => setLastName(event.target.value);
 
+	/* 
+	// para mostrar navbar logueado
 	const handleSubmitRegister = async (event) => {
 		event.preventDefault();
 		if (password1 == password2) {
@@ -42,7 +44,36 @@ export const Register = () => {
 		} else {
 			alert("Las contraseñas no coinciden");
 		}
-	}
+	} */
+
+		
+	//simulacion logeado
+	const handleSubmitRegister = async (event) => {
+			event.preventDefault();
+			if (password1 === password2) {
+				// Simulación de usuario registrado y token recibido
+				const fakeUser = {
+					id: 123,
+					email,
+					first_name: firstName,
+					last_name: lastName,
+				};
+				const fakeToken = "12345abcde-token";
+	
+				dispatch({
+					type: "CURRENT-USER",
+					payload: fakeUser,
+				});
+				dispatch({
+					type: "LOGIN",
+					payload: { token: fakeToken, isLogged: true },
+				});
+				localStorage.setItem("token", fakeToken);
+				navigate("/");
+			} else {
+				alert("Las contraseñas no coinciden");
+			}
+		};
 
 	const handleCancel = () => {
 		setEmail("");

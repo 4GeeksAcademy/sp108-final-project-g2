@@ -51,17 +51,7 @@ export const Login = () => {
 			</div>
 
 			<form>
-				{/* Email */}
-				<div className="mb-3 input-group">
-					<span className="input-group-text">
-						<i className="fas fa-envelope"></i>
-					</span>
-					<input
-						type="email"
-						className="form-control"
-						placeholder="Correo electrónico"
-					/>
-				</div>
+				
 
 				<form onSubmit={handleSubmitLogin}>
 
@@ -86,11 +76,22 @@ export const Login = () => {
 					{/* Botón Login y Cancel*/}
 					<div className="d-grid mb-3">
 						<button className="btn btn-login" type="submit">
-							<i className="fas fa-user me-2"></i> Iniciar sesión
+							 <i className="fas fa-user"></i> Iniciar sesión
 						</button>
-						<button onClick={handleCancel} type="button" className="btn bg-secondary text-white">
-							Cancel
+					</div>
+					<div className="d-grid mb-3">
+						<button onClick={handleCancel} type="button" className="btn btn-login">
+							<i className="fas fa-times me-2"></i> Cancelar
+
 						</button>
+					</div>
+
+					{/* Enlace a recuperar contraseña */}
+					<div className="text-center mb-3">
+						<small>
+							¿Olvidaste tu contraseña?{" "}
+							<Link to="/forgot-password">Recupérala aquí</Link>
+						</small>
 					</div>
 
 					{/* Enlace a registro */}

@@ -11,10 +11,14 @@ import { TripUsers } from "./pages/TripUsers.jsx";
 import { TripUserDetails } from "./pages/TripUserDetails.jsx";
 import { Activities } from "./pages/Activities.jsx";
 import { ActivityDetails } from "./pages/ActivityDetails.jsx";
-
 import { StoryDetails } from "./pages/StoryDetails.jsx";
 import { Contact } from "./pages/Contact.jsx";
-import { MyStories } from "./pages/MyStories.jsx";
+import { Stories } from "./pages/Stories.jsx";
+import { ForgotPassword } from "./pages/ForgotPassword.jsx";
+import { CreateTrip } from "./pages/CreateTrip.jsx";
+import { ResetPassword } from "./pages/ResetPassword.jsx";
+
+
 
 
 
@@ -33,19 +37,22 @@ export const router = createBrowserRouter (
         <Route path="/" element={<Home />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/activities" element={<Activities />} />
-        <Route path="/my-stories" element={<MyStories />} />
+        <Route path="/stories" element={<Stories />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/reset-password/:token" element={<ResetPassword/>} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/register" element={<Register />} />
         <Route path="/users/:user_id" element={<ProfileSettings />} />
+        <Route path="/create-trip" element={<CreateTrip />} />
         <Route path="/trips" element={<Trips />} />
         <Route path="/trips/:trip_id" element={<TripDetails />} />
         <Route path="/trips/:trip_id/users" element={<TripUsers />} />
         <Route path="/trips/:trip_id/users/:user_id" element={<TripUserDetails />} />
         <Route path="/trips/:trip_id/activities" element={<Activities />} />
         <Route path="/trips/:trip_id/activities/:activity_id" element={<ActivityDetails />} />
-       
         <Route path="/trips/:trip_id/activities/:activity_id/stories/:story_id" element={<StoryDetails />} />
       </Route>
+      
       
     )
 );

@@ -1,5 +1,4 @@
-const host = "https://redesigned-giggle-5g5xqxxrvjwr344vq-3001.app.github.dev"
-
+const host = import.meta.env.VITE_BACKEND_URL
 
 export const getTrips = async () => {
 

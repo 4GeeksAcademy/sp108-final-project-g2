@@ -50,28 +50,26 @@ export const Login = () => {
 				<h2 className="mt-2">Iniciar sesión</h2>
 			</div>
 
-			<form>
-				
+			<form onSubmit={handleSubmitLogin}>
 
-				<form onSubmit={handleSubmitLogin}>
+				{/* Email */}
+				<div className="mb-3 input-group">
+					<span className="input-group-text">
+						<i className="fas fa-envelope"></i>
+					</span>
+					<input type="email" className="form-control rounded-3" id="loginEmail" placeholder="Correo electrónico"
+						value={email} onChange={handleEmail} />
+				</div>
 
-					{/* Email */}
-					<div className="mb-3 input-group">
-						<span className="input-group-text">
-							<i className="fas fa-envelope"></i>
-						</span>
-						<input type="email" className="form-control rounded-3" id="loginEmail" placeholder="Correo electrónico"
-							value={email} onChange={handleEmail} />
-					</div>
+				{/* Contraseña */}
+				<div className="mb-4 input-group">
+					<span className="input-group-text">
+						<i className="fas fa-lock"></i>
+					</span>
+					<input type="password" className="form-control rounded-3" id="loginPassword" placeholder="Contraseña"
+						value={password} onChange={handlePassword} />
+				</div>
 
-					{/* Contraseña */}
-					<div className="mb-4 input-group">
-						<span className="input-group-text">
-							<i className="fas fa-lock"></i>
-						</span>
-						<input type="password" className="form-control rounded-3" id="loginPassword" placeholder="Contraseña"
-							value={password} onChange={handlePassword} />
-					</div>
 
 					{/* Botón Login y Cancel*/}
 					<div className="d-grid mb-3">
@@ -102,6 +100,7 @@ export const Login = () => {
 						</small>
 					</div>
 				</form>
+
 			</form>
 		</div>
 	);

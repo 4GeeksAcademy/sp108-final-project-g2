@@ -11,6 +11,7 @@ from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt
 import cloudinary.uploader
+from datetime import datetime
 
 
 
@@ -259,6 +260,10 @@ def handle_create_trip():
         trip = Trips()
         trip.trip_owner_id = trip_owner_id
         trip.title = title
+        start_date_string = data.get("start_date")
+        end_date_string = data.get("end_date")
+        start_date = datetime.strptime(start_date_string, "%Y-%m-%d").date() if start_date_string else None
+        end_date = datetime.strptime(end_date_string, "%Y-%m-%d").date() if end_date_string else None
         trip.start_date = start_date
         trip.end_date = end_date
         trip.publicated = publicated
@@ -305,7 +310,7 @@ def handle_trip(trip_id):
     if request.method == "PUT":
         if not user_is_owner:
             response_body["message"] = f"User {token_user_id} is not allowed to put trip {trip_id}"
-            response_body["result"] = None
+            response_body["results"] = None
             return jsonify(response_body), 403
         data_input = request.json
         trip.title = data_input.get("title", trip.title)
@@ -313,18 +318,18 @@ def handle_trip(trip_id):
         trip.end_date = data_input.get("end_date", trip.end_date)
         trip.publicated = data_input.get("publicated", trip.publicated)
         db.session.commit()
-        response_body["result"] = trip.serialize()
+        response_body["results"] = trip.serialize()
         response_body["message"] = f"Trip {trip_id} put successfully"
         return jsonify(response_body), 200
     if request.method == "DELETE":
         if not user_is_owner:
             response_body["message"] = f"User {token_user_id} is not allowed to delete trip {trip_id}"
-            response_body["result"] = None
+            response_body["results"] = None
             return jsonify(response_body), 403
         db.session.delete(trip)
         db.session.commit()
         response_body["message"] = f"Trip {trip_id} deleted successfully"
-        response_body["result"] = None
+        response_body["results"] = None
         return jsonify(response_body), 200
     
 

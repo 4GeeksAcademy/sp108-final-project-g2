@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 import { useNavigate } from "react-router-dom";
-import { postTrips } from "../services/hello-world-services.js"
+import { postTrip } from "../services/hello-world-services.js"
 
 
 export const CreateTrip = () => {
@@ -42,7 +42,7 @@ export const CreateTrip = () => {
       "end_date": tripEndDate,
       "publicated": tripPublicated,
     }
-    const tripPosted = await postTrips(tripToPost);
+    const tripPosted = await postTrip(tripToPost);
     if (tripPosted) {
       dispatch({
         type: "POST-TRIP",
@@ -139,8 +139,8 @@ export const CreateTrip = () => {
               </button>
             </div> */}
 
-            {/* Input para emails invitados (solo visible si showInviteInput es true) */}
-            {showInviteInput && (
+            {/* Input para emails invitados (solo visible si showInviteInput es true)
+            showInviteInput && (
               <div className="mb-3 input-group">
                 <span className="input-group-text">
                   <i className="fas fa-user-friends"></i>
@@ -153,7 +153,7 @@ export const CreateTrip = () => {
                   onChange={(e) => setInvitedFriends(e.target.value)}
                 />
               </div>
-            )}
+            ) */}
 
             {/* Checkbox para viaje público */}
             <div className="mb-3 form-check">

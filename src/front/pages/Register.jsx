@@ -38,6 +38,7 @@ export const Register = () => {
 				payload: { token: userRegistered.access_token, isLogged: true }
 			});
 			localStorage.setItem("token", userRegistered.access_token);
+			localStorage.setItem("current-user", JSON.stringify(userLogged.results))
 			navigate("/");
 		} else {
 			alert("Las contraseñas no coinciden");

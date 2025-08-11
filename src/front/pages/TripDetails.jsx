@@ -114,13 +114,12 @@ export const TripDetails = () => {
                 Cancelar
               </button>
             </div>
-          </form>
+          </form> 
         </div>
       </div>
     </div>
   );
 };
-
 
 /* <button onClick={handleDeleteTrip} type="button" className="btn bg-danger text-white">
   Eliminar viaje

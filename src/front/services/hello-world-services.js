@@ -12,11 +12,11 @@ export const getTrips = async () => {
     }
   };
 
-  /* Local Storage
+  // Local Storage
   const tripsStorage = localStorage.getItem("trips-storage");
   if (tripsStorage) {
     return JSON.parse(tripsStorage);
-  } */
+  }
 
   //  Fetch trips
   try {
@@ -40,7 +40,7 @@ export const getTrips = async () => {
 };
 
 
-export const postTrips = async (newTrip) => {
+export const postTrip = async (newTrip) => {
   const uri = `${host}/api/create-trip`;
   const options = {
     method: "POST",
@@ -57,7 +57,7 @@ export const postTrips = async (newTrip) => {
     }
     const tripPosted = await response.json();
     const storedTrips = JSON.parse(localStorage.getItem("trips-storage")) || [];
-    storedTrips.tripOwner.push(tripPosted.results);
+    storedTrips.tripsOwner.push(tripPosted.results);
     localStorage.setItem("trips-storage", JSON.stringify(storedTrips));
     return tripPosted.results;
   }
@@ -82,22 +82,21 @@ export const putTrip = async (tripId, tripToPut) => {
       console.log(response.status, " error");
     }
     const tripPut = await response.json();
-    console.log("Antes", tripPut);
-    await getTrips()
-    /* const storedTrips = JSON.parse(localStorage.getItem("trips-storage"));
+    /* Local storage
+    Alternativa: await getTrips() */
+    const storedTrips = JSON.parse(localStorage.getItem("trips-storage"));
     storedTrips.tripsOwner = storedTrips.tripsOwner.map(trip =>
       trip.id === tripId ? tripPut.results : trip);
-    localStorage.setItem("trips-storage", JSON.stringify(storedTrips)); */
-    console.log("Después", tripPut.result);
-    return tripPut.result;
+    localStorage.setItem("trips-storage", JSON.stringify(storedTrips));
+    return tripPut.results;
   }
   catch {
     console.error("Error putting trip");
   }
 }
 
-export const deleteTrip = async (tripToDelete) => {
-  const uri = `${host}/api/trips/${tripToDelete.id}`;
+/* export const deleteTrip = async (tripId) => {
+  const uri = `${host}/api/trips/${tripId}`;
   const options = {
     method: "DELETE",
     headers: {
@@ -106,14 +105,18 @@ export const deleteTrip = async (tripToDelete) => {
     },
   };
   try {
-    const tripDeleted = await fetch(uri, options);
+    const response = await fetch(uri, options);
     if (!response.ok) {
       console.log(response.status, " error");
+      return false;
     }
-    localStorage.removeItem("current-user");
-    return await getAgenda();
+    const storedTrips = JSON.parse(localStorage.getItem("trips-storage"));
+    storedTrips.tripsOwner = storedTrips.tripsOwner.map(trip =>
+      trip.id === tripId ? {} : trip);
+    localStorage.setItem("trips-storage", JSON.stringify(storedTrips));
+    return false;
   }
   catch {
-    console.error("Error deleting contact");
+    console.error("Error deleting trip");
   }
-};
+}; */

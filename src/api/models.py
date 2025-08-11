@@ -89,8 +89,8 @@ class Trips(db.Model):
             'id': self.id,
             "trip_owner_to": self.trip_owner_to.serialize() if self.trip_owner_to else None,
             'title': self.title,
-            'start_date': self.start_date,
-            'end_date': self.end_date,
+            'start_date': self.start_date.strftime("%Y-%m-%d"),
+            'end_date': self.end_date.strftime("%Y-%m-%d"),
             'publicated': self.publicated,
             "activities": [row.serialize() for row in self.activities]
             }
@@ -100,8 +100,8 @@ class Trips(db.Model):
             'id': self.id,
             "trip_owner_id": self.trip_owner_id,
             'title': self.title,
-            'start_date': self.start_date,
-            'end_date': self.end_date,
+            'start_date': self.start_date.strftime("%Y-%m-%d"),
+            'end_date': self.end_date.strftime("%Y-%m-%d")
             }
 
 

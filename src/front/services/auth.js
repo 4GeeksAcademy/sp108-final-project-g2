@@ -78,8 +78,8 @@ export const deleteUser = async (userId, userToDelete) => {
     if (!response.ok) {
       console.log(response.status, " error");
     }
-    const userDelete = await response.json();
-    return userDelete;
+    const userDeleted = await response.json();
+    return userDeleted;
   } catch {
     console.error("Error putting user");
   }

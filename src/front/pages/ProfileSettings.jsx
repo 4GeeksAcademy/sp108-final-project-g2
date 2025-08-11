@@ -27,6 +27,7 @@ export const ProfileSettings = () => {
 			type: "CURRENT-USER",
 			payload: userSettings.results
 		});
+		localStorage.setItem("current-user", JSON.stringify(userSettings.results))
 		navigate("/");
 	}
 
@@ -41,6 +42,7 @@ export const ProfileSettings = () => {
 				type: "LOGIN",
 				payload: { token: "", isLogged: false }
 			});
+			localStorage.removeItem("current-user");
 			localStorage.removeItem("token");
 			navigate("/");
 		} else {

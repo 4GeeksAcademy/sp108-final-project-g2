@@ -187,3 +187,17 @@ const MyStories = () => {
 };
 
 
+{/* <div className="d-flex flex-column align-items-end">
+  <small className="text-muted">{new Date(act.createdAt).toLocaleString()}</small>
+  <div className="mt-2">
+    <button className="btn btn-sm btn-outline-secondary me-2" title="Editar">
+      <i className="fas fa-edit"></i>
+    </button>
+    <button
+      className="btn btn-sm btn-outline-danger"
+      onClick={() => handleDeleteActivity(act.id)}
+      title="Eliminar"
+    >
+      <i className="fas fa-trash-alt"></i>
+    </button>
+  </div> */}

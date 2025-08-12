@@ -107,37 +107,28 @@ class Trips(db.Model):
 
 
 class Activities(db.Model):
-    __tablename__ = 'activities'  # nombre de la tabla
-    id = db.Column(db.Integer, primary_key=True)  # Identificador unico
+    __tablename__ = 'activities'  
+    id = db.Column(db.Integer, primary_key=True)  
     trip_id = db.Column(db.Integer, db.ForeignKey(
-        'trips.id'))  # contector de una tabla a otra
+        'trips.id'))  
     trip_to = db.relationship("Trips", foreign_keys=[
                               trip_id], backref=db.backref('activities', lazy='select', cascade="all, delete-orphan"))
-    title = db.Column(db.String, nullable=False)
-    type = db.Column(db.String, nullable=False)
-    company = db.Column(db.String)
-    # Fecha de inicio y fin de la actividad
-    start_date = db.Column(db.DateTime)
-    end_date = db.Column(db.DateTime)
-    latitude = db.Column(db.Float)   # Coordenadas geográficas (ubicación)
-    longitude = db.Column(db.Float)
-    notes = db.Column(db.Text)  # Nota libre sobre la actividad
-    # Fecha automática cuando se crea el registro
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    title = db.Column(db.String)
+    date = db.Column(db.Date)
+    time = db.Column(db.Time)
+    address = db.Column(db.String)
+    notes = db.Column(db.Text)
 
     def serialize_relationships(self):
         return {
             "id": self.id,
-            "trip_id": self.trip_id,
-            "type": self.type,
-            "company": self.company,
-            "start_date": self.start_date,
-            "end_date": self.end_date,
-            "latitude": self.latitude,
-            "longitude": self.longitude,
+            "trip_to": self.trip_to.serialize() if self.trip_to else None,
+            "title": self.title,
+            'date': self.date.strftime("%Y-%m-%d") if self.date else None,
+            "time": self.time.strftime("%H:%M") if self.time else None,
+            "address": self.address,
             "notes": self.notes,
-            "created_at": self.created_at,
-            "activity_history": [row.serialize() for row in self.activities_history_to] 
+            "stories": [row.serialize() for row in self.stories] 
         }
 
     def serialize(self):
@@ -145,14 +136,10 @@ class Activities(db.Model):
             "id": self.id,
             "trip_id": self.trip_id,
             "title": self.title,
-            "type": self.type,
-            "company": self.company,
-            "start_date": self.start_date,
-            "end_date": self.end_date,
-            "latitude": self.latitude,
-            "longitude": self.longitude,
-            "notes": self.notes,
-            "created_at": self.created_at
+            'date': self.date.strftime("%Y-%m-%d") if self.date else None,
+            "time": self.time.strftime("%H:%M") if self.time else None,
+            "address": self.address,
+            "notes": self.notes
         }
 
 

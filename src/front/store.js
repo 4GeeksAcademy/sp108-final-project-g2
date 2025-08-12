@@ -12,9 +12,9 @@ export const initialStore = () => {
       userTrips: [],
       tripsOwner: []
     },
-    tripDetail: {},
+    tripDetail: [],
     // formulario se renderiza si eres owner y meter correo electrónico. si el correo electrónico existe 
-    activityDetail: {}
+    activityDetail: []
     // modal para ver la imagen en grande
 
   };
@@ -51,13 +51,19 @@ export default function storeReducer(store, action = {}) {
         }
       };
 
-    case "PUT-TRIP":
+    case "DELETE-TRIP":
       return {
         ...store,
         trips: {
           ...store.trips, tripsOwner:
             store.trips.tripsOwner.filter(trip => trip.id !== action.payload.id)
         }
+      };
+
+    case "GET-ACTIVITIES":
+      return {
+        ...store,
+        tripDetail: [...store.tripDetail, action.payload]
       };
 
     default:

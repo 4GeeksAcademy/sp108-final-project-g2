@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 4ebd01e9466d
+Revision ID: 024fc303ec37
 Revises: 
-Create Date: 2025-08-11 17:27:37.730828
+Create Date: 2025-08-11 23:50:05.502494
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '4ebd01e9466d'
+revision = '024fc303ec37'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -41,15 +41,11 @@ def upgrade():
     op.create_table('activities',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('trip_id', sa.Integer(), nullable=True),
-    sa.Column('title', sa.String(), nullable=False),
-    sa.Column('type', sa.String(), nullable=False),
-    sa.Column('company', sa.String(), nullable=True),
-    sa.Column('start_date', sa.DateTime(), nullable=True),
-    sa.Column('end_date', sa.DateTime(), nullable=True),
-    sa.Column('latitude', sa.Float(), nullable=True),
-    sa.Column('longitude', sa.Float(), nullable=True),
+    sa.Column('title', sa.String(), nullable=True),
+    sa.Column('date', sa.Date(), nullable=True),
+    sa.Column('time', sa.Time(), nullable=True),
+    sa.Column('address', sa.String(), nullable=True),
     sa.Column('notes', sa.Text(), nullable=True),
-    sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['trip_id'], ['trips.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

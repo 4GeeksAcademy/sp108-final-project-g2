@@ -11,10 +11,10 @@ export const TripDetails = () => {
 
   const trip = store.trips.tripsOwner.find(trip => trip.id === tripId);
 
-  const [tripName, setTripName] = useState(trip.title || "");
-  const [tripStartDate, setTripStartDate] = useState(trip.start_date || "");
-  const [tripEndDate, setTripEndDate] = useState(trip.end_date || "");
-  const [tripPublicated, setTripPublicated] = useState(trip.publicated || false);
+  const [tripName, setTripName] = useState(trip?.title || "");
+  const [tripStartDate, setTripStartDate] = useState(trip?.start_date || "");
+  const [tripEndDate, setTripEndDate] = useState(trip?.end_date || "");
+  const [tripPublicated, setTripPublicated] = useState(trip?.publicated || false);
 
   const handleTripName = event => setTripName(event.target.value);
   const handleTripStartDate = event => setTripStartDate(event.target.value);
@@ -42,7 +42,7 @@ export const TripDetails = () => {
   };
 
   const handleCancel = () => {
-    navigate(`/trips/${tripId}/activities`);
+    navigate(`/trips`);
   };
 
   const handleDeleteTrip = async () => {

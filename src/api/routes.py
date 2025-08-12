@@ -479,7 +479,7 @@ def handle_acivities(trip_id):
             response_body["message"] = f"Trip {trip_id} has no activities yet"
             response_body["results"] = None
             return jsonify(response_body), 404
-        results = [row.serialize() for row in activities]
+        results = [row.serialize_relationships() for row in activities]
         response_body["message"] = f"Activities from trip {trip_id} got successfully"
         response_body["results"] = results
         return jsonify(response_body), 200
@@ -490,23 +490,16 @@ def handle_acivities(trip_id):
             return jsonify(response_body), 403
         data = request.get_json() 
         title = data.get('title', None)
-        # Cambiar por activity type
-        type = data.get('type', None)
-        company = data.get('company', None)
-        start_date = data.get('start_date', None)
-        end_date = data.get('end_date', None)
-        latitude = data.get('latitude', None)
-        longitude = data.get('longitude', None)
+        date_string = data.get("date")
+        time_string = data.get("time")
+        address = data.get('address', None)
         notes = data.get('notes', None)
         activity = Activities()
         activity.trip_id = trip_id
         activity.title = title
-        activity.type = type
-        activity.company = company
-        activity.start_date = start_date
-        activity.end_date = end_date
-        activity.latitude = latitude
-        activity.longitude = longitude
+        activity.date = datetime.strptime(date_string, "%Y-%m-%d").date() if date_string else None
+        activity.time = datetime.strptime(time_string, "%H:%M").time() if time_string else None
+        activity.address = address
         activity.notes = notes
         db.session.add(activity)
         db.session.commit()
@@ -560,16 +553,16 @@ def handle_activity(trip_id, activity_id):
             response_body["result"] = None
             return jsonify(response_body), 403
         data = request.json
+        activity.trip_id = trip_id
         activity.title = data.get('title', activity.title)
-        activity.type = data.get('type', activity.type)
-        activity.company = data.get('company', activity.company)
-        activity.start_date = data.get('start_date', activity.start_date)
-        activity.end_date = data.get('end_date', activity.end_date)
-        activity.latitude = data.get('latitude', activity.latitude)
-        activity.longitude = data.get('longitude', activity.longitude)
+        date_string = data.get("date")
+        time_string = data.get("time")
+        activity.date = datetime.strptime(date_string, "%Y-%m-%d").date() if date_string else None
+        activity.time = datetime.strptime(time_string, "%H:%M").time() if time_string else None
+        activity.address = data.get('address', activity.address)
         activity.notes = data.get('notes', activity.notes)
         db.session.commit()
-        response_body["result"] = activity.serialize_relationships()
+        response_body["result"] = activity.serialize()
         response_body["message"] = f"Activity {activity_id} put successfully in trip {trip_id}"
         return jsonify(response_body), 200
     if request.method == "DELETE":

@@ -1,165 +1,175 @@
-import React, { useState } from "react"
+import React, { useState } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 import { Link, useNavigate } from "react-router-dom";
-import { register } from "../services/auth.js"
+import { register } from "../services/auth.js";
 
 export const Register = () => {
-	const navigate = useNavigate();
-	const { dispatch } = useGlobalReducer();
+  const navigate = useNavigate();
+  const { dispatch } = useGlobalReducer();
 
-	const [email, setEmail] = useState("");
-	const [password1, setPassword1] = useState("");
-	const [password2, setPassword2] = useState("");
-	const [firstName, setFirstName] = useState("");
-	const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password1, setPassword1] = useState("");
+  const [password2, setPassword2] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
-	const handleEmail = event => setEmail(event.target.value);
-	const handlePassword1 = event => setPassword1(event.target.value);
-	const handlePassword2 = event => setPassword2(event.target.value);
-	const handleFirstName = event => setFirstName(event.target.value);
-	const handleLastName = event => setLastName(event.target.value);
+  const handleEmail = (event) => setEmail(event.target.value);
+  const handlePassword1 = (event) => setPassword1(event.target.value);
+  const handlePassword2 = (event) => setPassword2(event.target.value);
+  const handleFirstName = (event) => setFirstName(event.target.value);
+  const handleLastName = (event) => setLastName(event.target.value);
 
-	/* 
-	// para mostrar navbar logueado
-	const handleSubmitRegister = async (event) => {
-		event.preventDefault();
-		if (password1 == password2) {
-			const userToPost = {
-				"email": email,
-				"password": password1,
-				"first_name": firstName,
-				"last_name": lastName
-			};
-			const userRegistered = await register(userToPost);
-			dispatch({
-				type: "CURRENT-USER",
-				payload: userRegistered.results
-			});
-			dispatch({
-				type: "LOGIN",
-				payload: { token: userRegistered.access_token, isLogged: true }
-			});
-			localStorage.setItem("token", userRegistered.access_token);
-			navigate("/");
-		} else {
-			alert("Las contraseñas no coinciden");
-		}
-	} */
+  const handleSubmitRegister = async (event) => {
+    event.preventDefault();
 
-		
-	//simulacion logeado
-	const handleSubmitRegister = async (event) => {
-			event.preventDefault();
-			if (password1 === password2) {
-				// Simulación de usuario registrado y token recibido
-				const fakeUser = {
-					id: 123,
-					email,
-					first_name: firstName,
-					last_name: lastName,
-				};
-				const fakeToken = "12345abcde-token";
-	
-				dispatch({
-					type: "CURRENT-USER",
-					payload: fakeUser,
-				});
-				dispatch({
-					type: "LOGIN",
-					payload: { token: fakeToken, isLogged: true },
-				});
-				localStorage.setItem("token", fakeToken);
-				navigate("/");
-			} else {
-				alert("Las contraseñas no coinciden");
-			}
-		};
+    if (password1 !== password2) {
+      alert("Las contraseñas no coinciden");
+      return;
+    }
 
-	const handleCancel = () => {
-		setEmail("");
-		setPassword1("");
-		setPassword2("");
-		setFirstName("");
-		setLastName("");
-		navigate("/");
-	}
+    const userToPost = {
+      email,
+      password: password1,
+      first_name: firstName,
+      last_name: lastName,
+    };
 
+    const userRegistered = await register(userToPost);
 
-	return (
-		<div className="container mt-5 mb-5" style={{ maxWidth: "500px" }}>
-			<div className="text-center mb-4">
-				<i className="fas fa-user-plus fa-3x text-warning"></i>
-				<h2 className="mt-2">Crear cuenta</h2>
-			</div>
+    if (userRegistered) {
+      dispatch({
+        type: "CURRENT-USER",
+        payload: userRegistered.results,
+      });
 
-			<form onSubmit={handleSubmitRegister}>
+      dispatch({
+        type: "LOGIN",
+        payload: { token: userRegistered.access_token, isLogged: true },
+      });
 
-				{/* Nombre */}
-				<div className="mb-3 input-group">
-					<span className="input-group-text">
-						<i className="fas fa-user"></i>
-					</span>
-					<input type="text" className="form-control" placeholder="Nombre"
-						value={firstName} onChange={handleFirstName} />
-				</div>
+      localStorage.setItem("token", userRegistered.access_token);
+      localStorage.setItem(
+        "current-user",
+        JSON.stringify(userRegistered.results)
+      );
 
-				{/* Apellido */}
-				<div className="mb-3 input-group">
-					<span className="input-group-text">
-						<i className="fas fa-user"></i>
-					</span>
-					<input type="text" className="form-control" placeholder="Apellido"
-						value={lastName} onChange={handleLastName} />
-				</div>
+      navigate("/");
+    } else {
+      alert("Error al registrar el usuario");
+    }
+  };
 
-				{/* Email */}
-				<div className="mb-3 input-group">
-					<span className="input-group-text">
-						<i className="fas fa-envelope"></i>
-					</span>
-					<input type="email" className="form-control" placeholder="Correo electrónico"
-						value={email} onChange={handleEmail} />
-				</div>
+  const handleCancel = () => {
+    setEmail("");
+    setPassword1("");
+    setPassword2("");
+    setFirstName("");
+    setLastName("");
+    navigate("/");
+  };
 
-				{/* Contraseña */}
-				<div className="mb-3 input-group">
-					<span className="input-group-text">
-						<i className="fas fa-lock"></i>
-					</span>
-					<input type="password" className="form-control" placeholder="Contraseña"
-						value={password1} onChange={handlePassword1} />
-				</div>
+  return (
+    <div className="container mt-5 mb-5" style={{ maxWidth: "500px" }}>
+      <div className="text-center mb-4">
+        <i className="fas fa-user-plus fa-3x text-warning"></i>
+        <h2 className="mt-2">Crear cuenta</h2>
+      </div>
 
-				{/* Confirmar Contraseña */}
-				<div className="mb-4 input-group">
-					<span className="input-group-text">
-						<i className="fas fa-lock"></i>
-					</span>
-					<input type="password" className="form-control" placeholder="Confirmar contraseña"
-						value={password2} onChange={handlePassword2} />
-				</div>
+      <form onSubmit={handleSubmitRegister}>
+        {/* Nombre */}
+        <div className="mb-3 input-group">
+          <span className="input-group-text">
+            <i className="fas fa-user"></i>
+          </span>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Nombre"
+            value={firstName}
+            onChange={handleFirstName}
+            required
+          />
+        </div>
 
-				{/* Botón Registro y Cancel */}
-				<div className="d-flex justify-content-between mt-3 text-center">
-					<button type="submit" className="btn-login">
-						<i className="fas fa-user-plus me-2"></i>
-						Registrarse
-					</button>
-					<button onClick={handleCancel} type="button" className="btn-login">
-						<i className="fas fa-times me-2"></i>
+        {/* Apellido */}
+        <div className="mb-3 input-group">
+          <span className="input-group-text">
+            <i className="fas fa-user"></i>
+          </span>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Apellido"
+            value={lastName}
+            onChange={handleLastName}
+            required
+          />
+        </div>
 
-						Cancel
-					</button>
-				</div>
+        {/* Email */}
+        <div className="mb-3 input-group">
+          <span className="input-group-text">
+            <i className="fas fa-envelope"></i>
+          </span>
+          <input
+            type="email"
+            className="form-control"
+            placeholder="Correo electrónico"
+            value={email}
+            onChange={handleEmail}
+            required
+          />
+        </div>
 
-				{/* Enlace a Login */}
-				<div className="mt-3 text-center">
-					<small>
-						¿Ya tienes una cuenta? <Link to="/login">Loguéate aquí</Link>
-					</small>
-				</div>
+        {/* Contraseña */}
+        <div className="mb-3 input-group">
+          <span className="input-group-text">
+            <i className="fas fa-lock"></i>
+          </span>
+          <input
+            type="password"
+            className="form-control"
+            placeholder="Contraseña"
+            value={password1}
+            onChange={handlePassword1}
+            required
+          />
+        </div>
 
-			</form>
-		</div>
-	);
+        {/* Confirmar Contraseña */}
+        <div className="mb-4 input-group">
+          <span className="input-group-text">
+            <i className="fas fa-lock"></i>
+          </span>
+          <input
+            type="password"
+            className="form-control"
+            placeholder="Confirmar contraseña"
+            value={password2}
+            onChange={handlePassword2}
+            required
+          />
+        </div>
+
+        {/* Botón Registro y Cancel */}
+        <div className="d-flex justify-content-between mt-3 text-center">
+          <button type="submit" className="btn-login">
+            <i className="fas fa-user-plus me-2"></i>
+            Registrarse
+          </button>
+          <button onClick={handleCancel} type="button" className="btn-login">
+            <i className="fas fa-times me-2"></i>
+            Cancelar
+          </button>
+        </div>
+
+        {/* Enlace a Login */}
+        <div className="mt-3 text-center">
+          <small>
+            ¿Ya tienes una cuenta? <Link to="/login">Loguéate aquí</Link>
+          </small>
+        </div>
+      </form>
+    </div>
+  );
 };

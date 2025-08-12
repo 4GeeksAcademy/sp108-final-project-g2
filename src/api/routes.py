@@ -11,6 +11,7 @@ from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt
 import cloudinary.uploader
+from datetime import datetime
 
 
 
@@ -90,7 +91,7 @@ def login():
         response_body["results"] = None
         response_body["message"] = "Invalid credentials"
         return jsonify(response_body), 401
-
+    
     claims = {
         "user_id": user.id,
         "email": user.email,
@@ -202,7 +203,7 @@ def handle_user(user_id):
         return jsonify(response_body), 200
 
 
-@api.route("/trips", methods=["GET", "POST"])
+@api.route("/trips", methods=["GET"])
 @jwt_required()
 def handle_trips():
     response_body = {}
@@ -237,6 +238,18 @@ def handle_trips():
         response_body["results"] = {"user_trips": user_results, 
                                     "trips_owner": owner_results}
         return jsonify(response_body), 200
+    
+
+@api.route("/create-trip", methods=["POST"])
+@jwt_required()
+def handle_create_trip():
+    response_body = {}
+    claims = get_jwt()
+    token_user_id = claims["user_id"]
+    if not token_user_id:
+        response_body["message"] = "User not found"
+        response_body["results"] = None
+        return jsonify(response_body), 404
     if request.method == "POST":
         data = request.json
         trip_owner_id = token_user_id
@@ -247,6 +260,10 @@ def handle_trips():
         trip = Trips()
         trip.trip_owner_id = trip_owner_id
         trip.title = title
+        start_date_string = data.get("start_date")
+        end_date_string = data.get("end_date")
+        start_date = datetime.strptime(start_date_string, "%Y-%m-%d").date() if start_date_string else None
+        end_date = datetime.strptime(end_date_string, "%Y-%m-%d").date() if end_date_string else None
         trip.start_date = start_date
         trip.end_date = end_date
         trip.publicated = publicated
@@ -293,26 +310,28 @@ def handle_trip(trip_id):
     if request.method == "PUT":
         if not user_is_owner:
             response_body["message"] = f"User {token_user_id} is not allowed to put trip {trip_id}"
-            response_body["result"] = None
+            response_body["results"] = None
             return jsonify(response_body), 403
         data_input = request.json
         trip.title = data_input.get("title", trip.title)
-        trip.start_date = data_input.get("start_date", trip.start_date)
-        trip.end_date = data_input.get("end_date", trip.end_date)
+        start_date_string = data_input.get("start_date")
+        end_date_string = data_input.get("end_date")
+        trip.start_date = datetime.strptime(start_date_string, "%Y-%m-%d").date() if start_date_string else None
+        trip.end_date = datetime.strptime(end_date_string, "%Y-%m-%d").date() if end_date_string else None
         trip.publicated = data_input.get("publicated", trip.publicated)
         db.session.commit()
-        response_body["result"] = trip.serialize()
+        response_body["results"] = trip.serialize()
         response_body["message"] = f"Trip {trip_id} put successfully"
         return jsonify(response_body), 200
     if request.method == "DELETE":
         if not user_is_owner:
             response_body["message"] = f"User {token_user_id} is not allowed to delete trip {trip_id}"
-            response_body["result"] = None
+            response_body["results"] = None
             return jsonify(response_body), 403
         db.session.delete(trip)
         db.session.commit()
         response_body["message"] = f"Trip {trip_id} deleted successfully"
-        response_body["result"] = None
+        response_body["results"] = None
         return jsonify(response_body), 200
     
 
@@ -364,14 +383,17 @@ def handle_trip_users(trip_id):
             response_body["results"] = None
             return jsonify(response_body), 403
         data = request.json
-        user_id = data.get("user_id", None)
-        user = db.session.execute(db.select(Users).where(Users.id == user_id)).scalar()
+        user_email = data.get("user_email", None) # user email
+        print(user_email)
+        user = db.session.execute(db.select(Users).where(Users.email == user_email)).scalar()
+        print(user)
         if not user:
-            response_body["message"] = f"User {user_id} not found"
+            response_body["message"] = f"User {user_email} not found"
             response_body["results"] = None
             return jsonify(response_body), 404
+        user_id = user.id
         user_already_exists =  db.session.execute(db.select(UserTrips).where(UserTrips.trip_id == trip_id,
-                                                                             UserTrips.user_id == user_id)).scalar()
+                                                                             UserTrips.user_id == user_id)).scalar()                                           
         if user_already_exists:
             response_body["message"] = f"User {user_id} is already associated with trip {trip_id}"
             response_body["results"] = None
@@ -715,76 +737,3 @@ def handle_activity_story(trip_id, activity_id, story_id):
     response_body["message"] = f"Story {story_id} deleted successfully from activity {activity_id} in trip {trip_id}"
     response_body["result"] = None
     return jsonify(response_body), 200
-
-# endopin de recuperacion de contraseñas
-
-from flask import request, jsonify, url_for, current_app
-from itsdangerous import URLSafeTimedSerializer
-from api.models import db, Users
-
-# POST /api/forgot-password
-@api.route("/forgot-password", methods=["POST"])
-def forgot_password():
-    data = request.get_json() or {}
-    email = data.get("email", "").strip().lower()
-    if not email:
-        return jsonify({"message": "Email es obligatorio"}), 400
-
-    # Buscar usuario por email
-    user = db.session.execute(
-        db.select(Users).where(Users.email == email)
-    ).scalar()
-
-    # serializer usando SECRET_KEY de la app
-    secret = current_app.config.get("SECRET_KEY", "dev-secret")
-    serializer = URLSafeTimedSerializer(secret)
-
-    # (no revelar existencia)
-    generic_msg = "Si el correo está registrado, recibirás instrucciones para restablecer la contraseña."
-
-    # Si no existe, devolvemos mensaje genérico (no leaking)
-    if not user:
-        return jsonify({"message": generic_msg}), 200
-
-    # Generar token con salt y expiración (la expiración la validamos al consumir)
-    token = serializer.dumps(user.email, salt="password-reset-salt")
-
-    # Construir URL de reset (externa) usando url_for del blueprint
-    reset_url = url_for("api.reset_password", token=token, _external=True)
-
-    # --- Aquí deberías enviar el email REAL al usuario (p. ej. con Flask-Mail) ---
-    # Para development imprimimos la URL en consola y la devolvemos en la respuesta (solo dev)
-    print(f"[DEBUG] Reset URL for {user.email}: {reset_url}")
-
-    return jsonify({"message": generic_msg, "reset_url": reset_url}), 200
-
-
-# POST /api/reset-password/<token>
-@api.route("/reset-password/<token>", methods=["POST"])
-def reset_password(token):
-    secret = current_app.config.get("SECRET_KEY", "dev-secret")
-    serializer = URLSafeTimedSerializer(secret)
-
-    # Validar  token (max_age en segundos; aquí 3600 = 1 hora)
-    try:
-        email = serializer.loads(token, salt="password-reset-salt", max_age=3600)
-    except Exception:
-        return jsonify({"message": "Token inválido o expirado"}), 400
-
-    data = request.get_json() or {}
-    new_password = data.get("password")
-
-    if not new_password or len(new_password) < 6:
-        return jsonify({"message": "La nueva contraseña es obligatoria y debe tener al menos 6 caracteres."}), 400
-
-    user = db.session.execute(db.select(Users).where(Users.email == email)).scalar()
-
-    if not user:
-        return jsonify({"message": "Usuario no encontrado"}), 404
-
-    # aquí debes hashear la contraseña con bcrypt 
-    user.password = new_password
-    db.session.commit()
-
-    return jsonify({"message": "Contraseña restablecida con éxito"}), 200
-

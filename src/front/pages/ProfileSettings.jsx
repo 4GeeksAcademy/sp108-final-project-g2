@@ -105,7 +105,7 @@ export const ProfileSettings = () => {
 					<button
 						onClick={handleDeleteUser}
 						type="button"
-						className="btn btn-danger text-white"
+						className="btn btn btn-login"
 					>
 						<i className="fas fa-trash me-2"></i> Eliminar usuario
 					</button>

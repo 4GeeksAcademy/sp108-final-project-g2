@@ -1,24 +1,25 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import tripPlanningLogo from "../assets/img/trip_planning.png";
 
 export const Navbar = () => {
-  // Declaraciones
   const navigate = useNavigate();
   const { store, dispatch } = useGlobalReducer();
 
-  // Función para cerrar menú colapsable
+  // Función para cerrar menú colapsable en móvil
   const closeMenu = () => {
     const navbar = document.getElementById("navbarNavDropdown");
-    if (navbar.classList.contains("show")) {
+    if (navbar && navbar.classList.contains("show")) {
       new window.bootstrap.Collapse(navbar).hide();
     }
   };
 
-  // Handlers
+  // Handler para login/logout
   const handleLogIn = () => {
     if (store.login.isLogged) {
       localStorage.removeItem("token");
+      localStorage.removeItem("current-user");
+      localStorage.removeItem("trips-storage");
       dispatch({
         type: "LOGIN",
         payload: { token: "", isLogged: false },
@@ -29,14 +30,27 @@ export const Navbar = () => {
     }
   };
 
-  const handleRegister = () => {
-    if (store.login.isLogged) {
-      const userId = store.currentUser.id;
-      navigate(`/users/${userId}`);
-    } else {
-      navigate("/register");
+  // Handler para registro/ajustes
+ const handleRegister = () => {
+  if (store.login.isLogged) {
+    if (!store.currentUser) {
+      console.warn("No hay usuario cargado, intentando restaurar...");
+      const savedUser = localStorage.getItem("current-user");
+      if (savedUser) {
+        const user = JSON.parse(savedUser);
+        dispatch({ type: "CURRENT-USER", payload: user });
+        navigate(`/users/${user.id}`);
+        return;
+      }
+      console.error("No se pudo recuperar el usuario");
+      return;
     }
-  };
+    navigate(`/users/${store.currentUser.id}`);
+  } else {
+    navigate("/register");
+  }
+};
+
 
   return (
     <nav className="navbar navbar-expand-lg navbar-custom">
@@ -50,7 +64,7 @@ export const Navbar = () => {
           />
         </Link>
 
-        {/* Botón hamburguesa para móvil */}
+        {/* Botón hamburguesa solo si está logueado */}
         {store.login.isLogged && (
           <button
             className="navbar-toggler custom-toggler"
@@ -65,8 +79,8 @@ export const Navbar = () => {
           </button>
         )}
 
-        {/* Menú colapsable */}
-        {store.login.isLogged ? (
+        {/* Menú central (solo si está logueado) */}
+        {store.login.isLogged && (
           <div className="collapse navbar-collapse" id="navbarNavDropdown">
             <ul className="navbar-nav mx-auto mb-2 mb-lg-0">
               <li className="nav-item">
@@ -121,9 +135,9 @@ export const Navbar = () => {
               </li>
             </ul>
           </div>
-        ) : null}
+        )}
 
-        {/* Botones a la derecha (si está logueado o no) */}
+        {/* Botones a la derecha */}
         <div className="d-flex gap-3">
           <button
             onClick={() => {

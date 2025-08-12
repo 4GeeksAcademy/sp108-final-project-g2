@@ -1,109 +1,129 @@
-import React, { useState } from "react"
+import React, { useState } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 import { Link, useNavigate } from "react-router-dom";
-import { login } from "../services/auth.js"
+import { login } from "../services/auth.js";
 
 export const Login = () => {
-	const navigate = useNavigate();
-	const { dispatch } = useGlobalReducer();
+  const navigate = useNavigate();
+  const { dispatch } = useGlobalReducer();
 
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-	const handleEmail = event => setEmail(event.target.value);
-	const handlePassword = event => setPassword(event.target.value);
+  const handleEmail = (event) => setEmail(event.target.value);
+  const handlePassword = (event) => setPassword(event.target.value);
 
-	const handleSubmitLogin = async (event) => {
-		event.preventDefault();
-		const userToLogin = {
-			"email": email,
-			"password": password,
-		}
-		const userLogged = await login(userToLogin);
-		if (userLogged) {
-			dispatch({
-				type: "CURRENT-USER",
-				payload: userLogged.results
-			});
-			dispatch({
-				type: "LOGIN",
-				payload: { token: userLogged.access_token, isLogged: true }
-			});
-			localStorage.setItem("token", userLogged.access_token);
-			navigate("/");
-		} else {
-			alert("Credenciales inválidas")
-		}
+  const handleSubmitLogin = async (event) => {
+    event.preventDefault();
+    const userToLogin = {
+      email,
+      password,
+    };
 
-	}
+    const userLogged = await login(userToLogin);
 
-	const handleCancel = () => {
-		setEmail("");
-		setPassword("");
-		navigate("/");
-	}
+    if (userLogged) {
+      // Guardar usuario en stado global
+      dispatch({
+        type: "CURRENT-USER",
+        payload: userLogged.results,
+      });
 
-	return (
-		<div className="container mt-5 mb-5" style={{ maxWidth: "500px" }}>
-			<div className="text-center mb-4">
-				<i className="fas fa-sign-in-alt fa-3x text-warning"></i>
-				<h2 className="mt-2">Iniciar sesión</h2>
-			</div>
+      // Guardar token y estado de sesión
+      dispatch({
+        type: "LOGIN",
+        payload: { token: userLogged.access_token, isLogged: true },
+      });
 
-			<form>
-				
+      // Guardar en localStorage
+      localStorage.setItem("token", userLogged.access_token);
+      localStorage.setItem("current-user", JSON.stringify(userLogged.results));
 
-				<form onSubmit={handleSubmitLogin}>
+      navigate("/");
+    } else {
+      alert("Credenciales inválidas");
+    }
+  };
 
-					{/* Email */}
-					<div className="mb-3 input-group">
-						<span className="input-group-text">
-							<i className="fas fa-envelope"></i>
-						</span>
-						<input type="email" className="form-control rounded-3" id="loginEmail" placeholder="Correo electrónico"
-							value={email} onChange={handleEmail} />
-					</div>
+  const handleCancel = () => {
+    setEmail("");
+    setPassword("");
+    navigate("/");
+  };
 
-					{/* Contraseña */}
-					<div className="mb-4 input-group">
-						<span className="input-group-text">
-							<i className="fas fa-lock"></i>
-						</span>
-						<input type="password" className="form-control rounded-3" id="loginPassword" placeholder="Contraseña"
-							value={password} onChange={handlePassword} />
-					</div>
+  return (
+    <div className="container mt-5 mb-5" style={{ maxWidth: "500px" }}>
+      <div className="text-center mb-4">
+        <i className="fas fa-sign-in-alt fa-3x text-warning"></i>
+        <h2 className="mt-2">Iniciar sesión</h2>
+      </div>
 
-					{/* Botón Login y Cancel*/}
-					<div className="d-grid mb-3">
-						<button className="btn btn-login" type="submit">
-							 <i className="fas fa-user"></i> Iniciar sesión
-						</button>
-					</div>
-					<div className="d-grid mb-3">
-						<button onClick={handleCancel} type="button" className="btn btn-login">
-							<i className="fas fa-times me-2"></i> Cancelar
+      <form onSubmit={handleSubmitLogin}>
+        {/* Email */}
+        <div className="mb-3 input-group">
+          <span className="input-group-text">
+            <i className="fas fa-envelope"></i>
+          </span>
+          <input
+            type="email"
+            className="form-control rounded-3"
+            id="loginEmail"
+            placeholder="Correo electrónico"
+            value={email}
+            onChange={handleEmail}
+            required
+          />
+        </div>
 
-						</button>
-					</div>
+        {/* Contraseña */}
+        <div className="mb-4 input-group">
+          <span className="input-group-text">
+            <i className="fas fa-lock"></i>
+          </span>
+          <input
+            type="password"
+            className="form-control rounded-3"
+            id="loginPassword"
+            placeholder="Contraseña"
+            value={password}
+            onChange={handlePassword}
+            required
+          />
+        </div>
 
-					{/* Enlace a recuperar contraseña */}
-					<div className="text-center mb-3">
-						<small>
-							¿Olvidaste tu contraseña?{" "}
-							<Link to="/forgot-password">Recupérala aquí</Link>
-						</small>
-					</div>
+        {/* Botón Login */}
+        <div className="d-grid mb-3">
+          <button className="btn btn-login" type="submit">
+            <i className="fas fa-user me-2"></i> Iniciar sesión
+          </button>
+        </div>
 
-					{/* Enlace a registro */}
-					<div className="text-center">
-						<small>
-							¿No tienes una cuenta?
-							<Link to="/register"> Regístrate aquí</Link>
-						</small>
-					</div>
-				</form>
-			</form>
-		</div>
-	);
+        {/* Botón Cancelar */}
+        <div className="d-grid mb-3">
+          <button
+            onClick={handleCancel}
+            type="button"
+            className="btn btn-login"
+          >
+            <i className="fas fa-times me-2"></i> Cancelar
+          </button>
+        </div>
+
+        {/* Enlace a recuperar contraseña */}
+        <div className="text-center mb-3">
+          <small>
+            ¿Olvidaste tu contraseña?{" "}
+            <Link to="/forgot-password">Recupérala aquí</Link>
+          </small>
+        </div>
+
+        {/* Enlace a registro */}
+        <div className="text-center">
+          <small>
+            ¿No tienes una cuenta? <Link to="/register">Regístrate aquí</Link>
+          </small>
+        </div>
+      </form>
+    </div>
+  );
 };
-

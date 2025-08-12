@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 import { useNavigate } from "react-router-dom";
-import { postTrips } from "../services/hello-world-services.js";
+import { postTrip } from "../services/hello-world-services.js";
 
 export const CreateTrip = () => {
   const navigate = useNavigate();
@@ -12,8 +12,6 @@ export const CreateTrip = () => {
   const [tripStartDate, setTripStartDate] = useState("");
   const [tripEndDate, setTripEndDate] = useState("");
   const [tripPublicated, setTripPublicated] = useState(false);
-  const [showInviteInput, setShowInviteInput] = useState(false);
-  const [invitedFriends, setInvitedFriends] = useState("");
 
   // Handlers para inputs
   const handleTripName = (e) => setTripName(e.target.value);
@@ -29,11 +27,11 @@ export const CreateTrip = () => {
       end_date: tripEndDate,
       publicated: tripPublicated,
     };
-    const tripPosted = await postTrips(tripToPost);
+    const tripPosted = await postTrip(tripToPost);
     if (tripPosted) {
       dispatch({
-        type: "POST-TRIPS",
-        payload: tripPosted.results,
+        type: "POST-TRIP",
+        payload: tripPosted,
       });
       // Reset form
       setTripName("");
@@ -48,12 +46,11 @@ export const CreateTrip = () => {
   };
 
   const handleCancel = () => {
-    // Resetea formulario y navega a Home
     setTripName("");
     setTripStartDate("");
     setTripEndDate("");
     setTripPublicated(false);
-    navigate("/");
+    navigate("/trips");
   };
 
   return (

@@ -26,7 +26,7 @@ export default function storeReducer(store, action = {}) {
       return { ...store, tripsToPost: action.payload };
       
     default:
-      throw Error('Unknown action.');
+      return store;
 
     }    
 }

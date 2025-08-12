@@ -3,7 +3,9 @@ import { useParams, Link } from "react-router-dom";
 import { Map } from "../components/Map.jsx"; // Ajusta si hace falta
 
 
+
 export const Activities = () => {
+  const token = localStorage.getItem("token");
   const { trip_id } = useParams();
 
     const [activityName, setActivityName] = useState("");
@@ -21,9 +23,9 @@ export const Activities = () => {
   const handleSubmitActivity = async (event) => {
   event.preventDefault();
 
+   
 
-};
-
+  };
 
   const initialActivities = [
     {

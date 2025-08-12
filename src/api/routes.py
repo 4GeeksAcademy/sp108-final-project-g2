@@ -423,7 +423,6 @@ def handle_user_in_trip(trip_id, user_id):
         response_body["result"] = None
         return jsonify(response_body), 200
     
-
 @api.route("/trips/<int:trip_id>/activities", methods=["GET", "POST"])
 @jwt_required()
 def handle_acivities(trip_id):
@@ -492,6 +491,7 @@ def handle_acivities(trip_id):
         response_body["message"] = f"Activity {activity.id} has been posted to trip {trip_id}"
         response_body["results"] = results
         return jsonify(response_body), 200
+ 
 
 
 @api.route("/trips/<int:trip_id>/activities/<int:activity_id>", methods=["GET", "PUT", "DELETE"])

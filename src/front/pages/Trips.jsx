@@ -75,7 +75,7 @@ export const Trips = () => {
                           {tripOwner.isPublic ? "Público" : "Privado"}
                         </span>
                         <button onClick={(event) => handleEditTrip(event, tripOwner)} type="button" className="btn btn-login d-flex align-items-center gap-2">
-                          <i class="fa-solid fa-pen"></i> Editar viaje
+                          <i className="fa-solid fa-pen"></i> Editar viaje
                         </button>
                       </div>
                     </div>

@@ -13,22 +13,25 @@ export const Activities = () => {
   const tripId = parseInt(trip_id)
   const navigate = useNavigate();
   const { store, dispatch } = useGlobalReducer();
-  
+
   const userId = store.currentUser.id
-  const trip = store.trips.tripsOwner.find(trip => trip.id === tripId) || store.trips.userTrips.find(trip => trip.id === tripId);
+  const trip = store.trips.tripsOwner?.find(trip => trip.id === tripId) || store.trips.userTrips?.find(trip => trip.id === tripId);
   const userIsOwner = trip && trip.trip_owner_id === userId;
+  console.log(trip)
 
-  const activities = store.activities.find(activities => activities.trip_to.trip_id === tripId);
+  const activities = store.activities?.find(activities => activities?.trip_to?.trip_id === tripId) || [];
+  console.log(activities)
 
-  const getAllActivities = async () => {
-    const allActivities = await getActivities();
-    dispatch({
-      type: "GET-ACTIVITIES",
-      payload: allActivities
-    });
-  };
 
   useEffect(() => {
+    const getAllActivities = async () => {
+      const allActivities = await getActivities();
+      console.log(allActivities);
+      dispatch({
+        type: "GET-ACTIVITIES",
+        payload: allActivities
+      });
+    };
     getAllActivities();
   }, [])
 
@@ -56,11 +59,11 @@ export const Activities = () => {
     }
     const activityPosted = await postActivity(tripId, activityToPost);
     if (activityPosted) {
+      const activities = getActivities();
       dispatch({
-        type: "POST-ACTIVITY",
-        payload: activityPosted
+        type: "GET-ACTIVITIES",
+        payload: activities
       });
-      getAllActivities();
     } else {
       return alert("Credenciales inválidas")
     }
@@ -98,17 +101,16 @@ export const Activities = () => {
     setActivities((prev) => [...prev, newActivity]);
     setMapSelectionActive(false);
   }; */
-
   return (
     <div className="container py-5">
       {/* Título */}
-      <div className="text-center mb-4">
+      {activities.length > 0 && (<div className="text-center mb-4">
         <h2 className="mb-1">
           <i className="fas fa-list-check me-2 text-warning"></i>
           Actividades del viaje {activities.trip_to.title}
         </h2>
         <small className="text-muted d-block mb-3">De {activities.trip_to.start_date} a {activities.trip_to.end_date}</small>
-      </div>
+      </div>)}
 
       {/* Formulario Post Activity */}
       {userIsOwner ?

@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../services/auth.js"
+import { getActivities, getTrips } from "../services/hello-world-services.js";
 
 export const Login = () => {
 	const navigate = useNavigate();
@@ -21,6 +22,8 @@ export const Login = () => {
 		}
 		const userLogged = await login(userToLogin);
 		if (userLogged) {
+			localStorage.setItem("token", userLogged.access_token);
+			localStorage.setItem("current-user", JSON.stringify(userLogged.results))
 			dispatch({
 				type: "CURRENT-USER",
 				payload: userLogged.results
@@ -29,8 +32,12 @@ export const Login = () => {
 				type: "LOGIN",
 				payload: { token: userLogged.access_token, isLogged: true }
 			});
-			localStorage.setItem("token", userLogged.access_token);
-			localStorage.setItem("current-user", JSON.stringify(userLogged.results))
+			const trips = await getTrips()
+			console.log(trips)
+			dispatch({
+				type: "GET-TRIPS",
+				payload: trips
+			});
 			navigate("/");
 		} else {
 			alert("Credenciales inválidas")

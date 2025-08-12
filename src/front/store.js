@@ -12,7 +12,7 @@ export const initialStore = () => {
       userTrips: [],
       tripsOwner: []
     },
-    tripDetail: [],
+    activities: [],
     // formulario se renderiza si eres owner y meter correo electrónico. si el correo electrónico existe 
     activityDetail: []
     // modal para ver la imagen en grande
@@ -63,7 +63,7 @@ export default function storeReducer(store, action = {}) {
     case "GET-ACTIVITIES":
       return {
         ...store,
-        tripDetail: [...store.tripDetail, action.payload]
+        activities: [...store.activities, action.payload]
       };
 
     default:

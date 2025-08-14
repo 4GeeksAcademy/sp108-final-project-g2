@@ -1,5 +1,5 @@
 // Import necessary hooks and functions from React.
-import { useContext, useReducer, createContext } from "react";
+import { useContext, useReducer, createContext, useEffect } from "react";
 import storeReducer, { initialStore } from "../store"  // Import the reducer and the initial state.
 
 
@@ -12,7 +12,24 @@ const StoreContext = createContext()
 // broadcast the information throught all the app pages and components.
 export function StoreProvider({ children }) {
     // Initialize reducer with the initial state.
-    const [store, dispatch] = useReducer(storeReducer, initialStore())
+    /* const [store, dispatch] = useReducer(storeReducer, initialStore()) */
+
+
+    const [store, dispatch] = useReducer(storeReducer, null, () => {
+        const stored = localStorage.getItem("store");
+        return stored ? JSON.parse(stored) : initialStore();
+    });
+
+    // Guardamos automáticamente la store en localStorage cada vez que cambie
+    useEffect(() => {
+        try {
+            localStorage.setItem("store", JSON.stringify(store));
+        } catch (error) {
+            console.error("Error guardando la store en localStorage:", error);
+        }
+    }, [store]);
+
+
     // Provide the store and dispatch method to all child components.
     return <StoreContext.Provider value={{ store, dispatch }}>
         {children}
@@ -25,3 +42,4 @@ export default function useGlobalReducer() {
     const { dispatch, store } = useContext(StoreContext)
     return { dispatch, store };
 }
+

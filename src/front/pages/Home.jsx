@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 
 export const Home = () => {
 	const { store, dispatch } = useGlobalReducer();
+	const userLogged = store.login.isLogged
 
 	const loadMessage = async () => {
 		try {
@@ -39,19 +40,19 @@ export const Home = () => {
 			url: "https://images.pexels.com/photos/7368269/pexels-photo-7368269.jpeg",
 			title: "Explora el mundo",
 			btnText: "Crear Viaje",
-			btnLink: "/trips/new"
+			btnLink: "/create-trip"
 		},
 		{
 			url: "https://images.pexels.com/photos/413960/pexels-photo-413960.jpeg",
 			title: "Aventuras inolvidables",
 			btnText: "Crear Viaje",
-			btnLink: "/trips/new"
+			btnLink: "/create-trip"
 		},
 		{
 			url: "https://images.pexels.com/photos/804463/pexels-photo-804463.jpeg",
 			title: "Crea recuerdos",
 			btnText: "Crear Viaje",
-			btnLink: "/trips/new"
+			btnLink: "/create-trip"
 		}
 	];
 
@@ -91,9 +92,9 @@ export const Home = () => {
 							/>
 							<div className="carousel-caption">
 								<h2 className="fw-bold">{title}</h2>
-								<a href={btnLink} className="btn-shared mt-3">
+								<Link to={userLogged ? "/create-trip" : "/register"} className="btn-shared mt-3">
 									{btnText}
-								</a>
+								</Link>
 
 							</div>
 						</div>
@@ -126,7 +127,7 @@ export const Home = () => {
 				</button>
 			</div>
 
-			<section className="cta-section">
+			{/* <section className="cta-section">
 				<div className="cta-container">
 					<h2 className="cta-title">Empieza a planificar tu próxima aventura</h2>
 					<p className="cta-subtitle">
@@ -139,7 +140,8 @@ export const Home = () => {
 					</div>
 
 				</div>
-			</section>
+			</section> */}
+
 			<section className="benefits-section">
 				<h2 className="section-title">¿Por qué usar nuestra app?</h2>
 				<div className="benefits-cards">

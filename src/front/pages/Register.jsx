@@ -38,22 +38,16 @@ export const Register = () => {
 				payload: { token: userRegistered.access_token, isLogged: true }
 			});
 			localStorage.setItem("token", userRegistered.access_token);
-			localStorage.setItem("current-user", JSON.stringify(userLogged.results))
-			navigate("/");
+			localStorage.setItem("current-user", JSON.stringify(userRegistered.results))
+			navigate("/create-trip");
 		} else {
 			alert("Las contraseñas no coinciden");
 		}
 	}
 
 	const handleCancel = () => {
-		setEmail("");
-		setPassword1("");
-		setPassword2("");
-		setFirstName("");
-		setLastName("");
 		navigate("/");
 	}
-
 
 	return (
 		<div className="container mt-5 mb-5" style={{ maxWidth: "500px" }}>
@@ -117,8 +111,7 @@ export const Register = () => {
 					</button>
 					<button onClick={handleCancel} type="button" className="btn-login">
 						<i className="fas fa-times me-2"></i>
-
-						Cancel
+						Cancelar
 					</button>
 				</div>
 

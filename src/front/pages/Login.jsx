@@ -2,7 +2,7 @@ import React, { useState } from "react"
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../services/auth.js"
-import { getActivities, getTrips } from "../services/hello-world-services.js";
+import { getTrips } from "../services/hello-world-services.js";
 
 export const Login = () => {
 	const navigate = useNavigate();
@@ -25,29 +25,23 @@ export const Login = () => {
 			localStorage.setItem("token", userLogged.access_token);
 			localStorage.setItem("current-user", JSON.stringify(userLogged.results))
 			dispatch({
-				type: "CURRENT-USER",
-				payload: userLogged.results
-			});
-			dispatch({
 				type: "LOGIN",
 				payload: { token: userLogged.access_token, isLogged: true }
 			});
-			const trips = await getTrips()
-			console.log(trips)
 			dispatch({
-				type: "GET-TRIPS",
-				payload: trips
+				type: "CURRENT-USER",
+				payload: userLogged.results
 			});
-			navigate("/");
+			const trips = await getTrips()
+			if (trips.tripsOwner.length > 0) {
+				navigate("/trips");
+			} else {navigate("/create-trip");}
 		} else {
 			alert("Credenciales inválidas")
 		}
-
 	}
 
 	const handleCancel = () => {
-		setEmail("");
-		setPassword("");
 		navigate("/");
 	}
 
@@ -79,20 +73,21 @@ export const Login = () => {
 				</div>
 
 				{/* Botón Login y Cancel*/}
-				<div className="d-grid mb-3">
-					<button className="btn btn-login" type="submit">
-						<i className="fas fa-user me-2"></i> Iniciar sesión
+				<div className="d-flex justify-content-between mt-3 text-center">
+					<button type="submit" className="btn-login">
+						<i className="fas fa-user me-2"></i>
+						Iniciar sesión
 					</button>
-					<button onClick={handleCancel} type="button" className="btn bg-secondary text-white">
-						Cancel
+					<button onClick={handleCancel} type="button" className="btn-login">
+						<i className="fas fa-times me-2"></i>
+						Cancelar
 					</button>
 				</div>
 
 				{/* Enlace a registro */}
-				<div className="text-center">
+				<div className="mt-3 text-center">
 					<small>
-						¿No tienes una cuenta?
-						<Link to="/register"> Regístrate aquí</Link>
+						¿No tienes una cuenta? <Link to="/register">Regístrate aquí</Link>
 					</small>
 				</div>
 			</form>

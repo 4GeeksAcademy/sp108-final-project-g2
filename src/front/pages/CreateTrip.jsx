@@ -1,13 +1,13 @@
 import React, { useState } from "react"
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 import { useNavigate } from "react-router-dom";
-import { postTrip } from "../services/hello-world-services.js"
+import { getTrips, postTrip } from "../services/hello-world-services.js"
 
 
 export const CreateTrip = () => {
 
   const navigate = useNavigate();
-  const { dispatch } = useGlobalReducer();
+  const { store, dispatch } = useGlobalReducer();
 
   // Estado para el nombre del viaje
   const [tripName, setTripName] = useState("");
@@ -22,7 +22,7 @@ export const CreateTrip = () => {
   const [tripDestination, setTripDestination] = useState("");
   Estado para la descripción del viaje
   const [description, setDescription] = useState(""); */
-  
+
   /* Estado para mostrar u ocultar el campo de invitación de amigos
   const [showInviteInput, setShowInviteInput] = useState(false);
   Estado para almacenar los emails de los amigos invitados (separados por coma)
@@ -92,8 +92,14 @@ export const CreateTrip = () => {
               <span className="input-group-text">
                 <i className="fas fa-calendar-alt"></i>
               </span>
-              <input type="date" className="form-control"
-                value={tripStartDate} onChange={handleTripStartDate} />
+              <input
+                type="date"
+                value={tripStartDate}
+                onChange={handleTripStartDate}
+                className="form-control"
+                placeholder=""
+                onFocus={(event) => event.target.showPicker && event.target.showPicker()}
+              />
             </div>
 
             {/* Fecha fin */}
@@ -101,8 +107,14 @@ export const CreateTrip = () => {
               <span className="input-group-text">
                 <i className="fas fa-calendar-check"></i>
               </span>
-              <input type="date" className="form-control"
-                value={tripEndDate} onChange={handleTripEndDate} />
+              <input
+                type="date"
+                value={tripEndDate}
+                onChange={handleTripEndDate}
+                className="form-control"
+                placeholder=""
+                onFocus={(event) => event.target.showPicker && event.target.showPicker()}
+              />
             </div>
 
             {/* Destino
@@ -156,22 +168,23 @@ export const CreateTrip = () => {
             ) */}
 
             {/* Checkbox para viaje público */}
-            <div className="mb-3 form-check">
+            {/* <div className="mb-3 form-check">
               <input className="form-check-input" type="checkbox" id="publicated"
                 checked={tripPublicated} onChange={handleTripPublicated} />
               <label className="form-check-label" htmlFor="publicated">
                 Hacer viaje público
               </label>
-            </div>
+            </div> */}
 
             {/* Botón para crear o cancelar el viaje */}
-            <div className="text-center">
-              <button className="btn btn-login px-4" type="submit">
+            <div className="d-flex justify-content-between mt-4 text-center">
+              <button type="submit" className="btn-login">
                 <i className="fas fa-plus-circle me-2"></i>
                 Crear viaje
               </button>
-              <button onClick={handleCancel} type="button" className="btn bg-secondary text-white">
-                Cancel
+              <button onClick={handleCancel} type="button" className="btn-login">
+                <i className="fas fa-times me-2"></i>
+                Cancelar
               </button>
             </div>
           </form>

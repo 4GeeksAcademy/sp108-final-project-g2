@@ -1,4 +1,5 @@
 import React from "react"
+import { Link } from "react-router-dom";
 
 export const Footer = () => {
 	return (
@@ -6,18 +7,17 @@ export const Footer = () => {
 			<div className="footer-content">
 				<div className="footer-section">
 					<h4 className="text-warning fw-bold">Viaja Con Nosotros</h4>
-					<p>Planifica, comparte y vive aventuras inolvidables.</p>
+					<p>Planifica, comparte y vive aventuras inolvidables</p>
 				</div>
 
-				<div className="footer-section">
+				{/* <div className="footer-section">
 					<h5 className="text-warning fw-semibold mb-2">Enlaces útiles</h5>
 					<ul className="list-unstyled">
-						<li><a className="text-light text-decoration-none" href="/trips">Mis viajes</a></li>
-						<li><a className="text-light text-decoration-none" href="/trips/new">Crear viaje</a></li>
-						<li><a className="text-light text-decoration-none" href="/about">Sobre nosotros</a></li>
-						<li><a className="text-light text-decoration-none" href="/contact">Contacto</a></li>
+						<li><Link to="/trips" className="text-light text-decoration-none">Mis viajes</Link></li>
+						<li><Link to="/create-trip" className="text-light text-decoration-none">Crear Viaje</Link></li>
+						<li><Link to="/contact" className="text-light text-decoration-none">Contacto</Link></li>
 					</ul>
-				</div>
+				</div> */}
 
 				<div className="footer-section">
 					<h5 className="text-warning fw-semibold mb-2">Síguenos</h5>

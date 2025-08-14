@@ -14,8 +14,6 @@ export const initialStore = () => {
     },
     activities: [],
     // formulario se renderiza si eres owner y meter correo electrónico. si el correo electrónico existe 
-    activityDetail: []
-    // modal para ver la imagen en grande
 
   };
 };
@@ -25,6 +23,9 @@ export default function storeReducer(store, action = {}) {
 
     case "LOGIN":
       return { ...store, login: action.payload };
+
+    case "CLEAR":
+      return initialStore();
 
     case "CURRENT-USER":
       return { ...store, currentUser: action.payload };
@@ -63,7 +64,21 @@ export default function storeReducer(store, action = {}) {
     case "GET-ACTIVITIES":
       return {
         ...store,
-        activities: [...store.activities, action.payload]
+        activities: action.payload
+      };
+
+    case "POST-ACTIVITY":
+      return {
+        ...store, activities: [
+          ...store.activities, action.payload]
+      };
+
+    case "DELETE-ACTIVITY":
+      return {
+        ...store,
+        activities: Array.isArray(store.activities)
+          ? store.activities.filter(activity => activity.id !== action.payload.id)
+          : []
       };
 
     default:

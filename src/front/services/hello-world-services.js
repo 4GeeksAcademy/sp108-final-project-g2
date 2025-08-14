@@ -31,7 +31,7 @@ export const getTrips = async () => {
     }));
     return {
       userTrips: tripsData.results.user_trips,
-      tripsOwner: tripsData.results.trips_owner 
+      tripsOwner: tripsData.results.trips_owner
     };
   }
   catch {
@@ -56,7 +56,7 @@ export const postTrip = async (tripToPost) => {
       console.log(response.status, " error");
     }
     const tripPosted = await response.json();
-    const storedTrips = JSON.parse(localStorage.getItem("trips-storage")) || [];
+    const storedTrips = JSON.parse(localStorage.getItem("trips-storage")) || {user_trips: [], tripsOwner: []};
     storedTrips.tripsOwner.push(tripPosted.results);
     localStorage.setItem("trips-storage", JSON.stringify(storedTrips));
     return tripPosted.results;
@@ -132,10 +132,10 @@ export const getActivities = async (tripId) => {
       "Authorization": `Bearer ${localStorage.getItem("token")}`
     }
   };
-  const activitiesStorage = localStorage.getItem("activities-storage");
+  /* const activitiesStorage = localStorage.getItem("activities-storage");
   if (activitiesStorage) {
     return JSON.parse(activitiesStorage);
-  }
+  } */
   try {
     const response = await fetch(uri, options);
     if (!response.ok) {
@@ -152,7 +152,7 @@ export const getActivities = async (tripId) => {
 
 
 export const postActivity = async (tripId, activityToPost) => {
-  const uri = `${host}/api/trips/${tripId}`;
+  const uri = `${host}/api/trips/${tripId}/activities`;
   const options = {
     method: "POST",
     headers: {
@@ -167,9 +167,9 @@ export const postActivity = async (tripId, activityToPost) => {
       console.log(response.status, " error");
     }
     const activityPosted = await response.json();
-    const storedActivities = JSON.parse(localStorage.getItem("activities-storage")) || [];
+    /* const storedActivities = JSON.parse(localStorage.getItem("activities-storage")) || [];
     storedActivities.push(activityPosted.results);
-    localStorage.setItem("activities-storage", JSON.stringify(storedActivities));
+    localStorage.setItem("activities-storage", JSON.stringify(storedActivities)); */
     return activityPosted.results;
   }
   catch {
@@ -193,10 +193,10 @@ export const putActivity = async (tripId, activityId, activityToPut) => {
       console.log(response.status, " error");
     }
     const activityPut = await response.json();
-    const storedActivities = JSON.parse(localStorage.getItem("activities-storage"));
+    /* const storedActivities = JSON.parse(localStorage.getItem("activities-storage"));
     storedActivities = storedActivities.map(activity =>
       activity.id === activityId ? activityPut.results : activity);
-    localStorage.setItem("activities-storage", JSON.stringify(storedActivities));
+    localStorage.setItem("activities-storage", JSON.stringify(storedActivities)); */
     return activityPut.results;
   }
   catch {
@@ -220,10 +220,10 @@ export const deleteActivity = async (tripId, activityToDelete) => {
       return false;
     }
     const activityDeleted = activityToDelete
-    const storedActivities = JSON.parse(localStorage.getItem("activities-storage"));
+    /* const storedActivities = JSON.parse(localStorage.getItem("activities-storage"));
     storedActivities = storedActivities.filter(activity => activity.id !== activityDeleted.id);
-    localStorage.setItem("activities-storage", JSON.stringify(storedActivities));
-    return activityDeleted.results;
+    localStorage.setItem("activities-storage", JSON.stringify(storedActivities)); */
+    return activityDeleted
   }
   catch {
     console.error("Error deleting activity");

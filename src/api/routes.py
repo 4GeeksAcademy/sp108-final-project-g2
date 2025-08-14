@@ -218,18 +218,19 @@ def handle_trips():
         user_is_owner = db.session.execute(db.select(Trips).where(Trips.trip_owner_id == token_user_id)).scalars()
         if not user_is_owner and not user_is_associated:
             response_body["message"] = f"User {token_user_id} does not own or is associated with any trips"
-            response_body["results"] = None
+            response_body["results"] = {"user_trips": [], 
+                                        "trips_owner": []}
             return jsonify(response_body), 404
         if not user_is_owner:
             user_results = [row.serialize_trips() for row in user_is_associated]
             response_body["message"] = f"Trips from participant {token_user_id} got successfully"
             response_body["results"] = {"user_trips": user_results, 
-                                        "trips_owner": None}
+                                        "trips_owner": []}
             return jsonify(response_body), 200
         if not user_is_associated:
             owner_results = [row.serialize() for row in user_is_owner]
             response_body["message"] = f"Trips from owner {token_user_id} got successfully"
-            response_body["results"] = {"user_trips": None, 
+            response_body["results"] = {"user_trips": [], 
                                         "trips_owner": owner_results}
             return jsonify(response_body), 200
         user_results = [row.serialize_trips() for row in user_is_associated]
@@ -331,7 +332,7 @@ def handle_trip(trip_id):
         db.session.delete(trip)
         db.session.commit()
         response_body["message"] = f"Trip {trip_id} deleted successfully"
-        response_body["results"] = None
+        response_body["results"] = {}
         return jsonify(response_body), 200
     
 
@@ -369,7 +370,7 @@ def handle_trip_users(trip_id):
         if not users_in_trip:
             response_body["message"] = f"Trip {trip_id} has no users associated yet"
             response_body["results"] = {"trip_owner": trip_owner_results,
-                                        "trip_users": None}
+                                        "trip_users": []}
             return jsonify(response_body), 200
         users_results = [row.serialize_users() for row in users_in_trip]
         response_body["message"] = f"Users from trip {trip_id} got successfully"
@@ -477,7 +478,7 @@ def handle_acivities(trip_id):
         activities = db.session.execute(db.select(Activities).where(Activities.trip_id == trip_id)).scalars()
         if not activities:
             response_body["message"] = f"Trip {trip_id} has no activities yet"
-            response_body["results"] = None
+            response_body["results"] = []
             return jsonify(response_body), 404
         results = [row.serialize_relationships() for row in activities]
         response_body["message"] = f"Activities from trip {trip_id} got successfully"

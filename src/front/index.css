@@ -359,29 +359,41 @@
 /* Contenedor que agrupa las secciones dentro del footer */
 .footer-content {
   display: flex;
-  flex-wrap: wrap; /* Permite varias filas en pantallas pequeñas */
-  justify-content: space-between;
+  flex-wrap: wrap;
+  justify-content: space-between; /* mantiene izquierda y derecha */
   max-width: 1200px;
   margin: 0 auto;
-  gap: 1rem; /* Espacio entre columnas */
+}
+
+/* Contenedor principal del footer */
+.footer {
+  display: flex;
+  justify-content: space-between; /* Distribuye secciones */
+  flex-wrap: wrap; /* Permite que se acomoden en móvil */
+  padding: 2rem 1rem;
+  background-color: #222; /* Fondo oscuro para ejemplo */
+  color: white;
 }
 
 /* Cada sección dentro del footer */
 .footer-section {
-  flex: 1; /* Ocupa espacio igual entre secciones */
-  min-width: 150px; /* Ancho mínimo para evitar colapso */
-  margin: 0; /* Sin margen extra */
-  padding: 0.5rem 1rem; /* Espaciado interno */
+  min-width: 150px; /* Evita colapso en pantallas pequeñas */
+  padding: 0.5rem 1rem;
 }
 
-/* Títulos en footer */
+/* Centrar sección del medio */
+.footer-section.center {
+  margin: 0 auto;
+}
+
+/* Títulos */
 .footer-section h4,
 .footer-section h5 {
-  margin-bottom: 0 0 0.5rem 0;
+  margin-bottom: 0.5rem;
   font-weight: 700;
 }
 
-/* Párrafos, listas y items de listas en footer */
+/* Texto y listas */
 .footer-section p,
 .footer-section ul,
 .footer-section li {
@@ -391,19 +403,16 @@
   font-weight: 400;
 }
 
-/* Items de listas con margen abajo para separar */
 .footer-section ul li {
   margin-bottom: 0.5rem;
 }
 
-/* Estilo para enlaces dentro del footer */
 .footer-section ul li a {
   color: white;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
-/* Hover en enlaces footer: cambia a amarillo paleta */
 .footer-section ul li a:hover {
   color: #F4B400;
 }
@@ -433,3 +442,31 @@
   color: #0B234F;
 }
 
+.btn-login-next {
+  background-color: #0B234F;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px; /* Bordes redondeados */
+  transition: background-color 0.3s ease;
+  width: auto;         /* No ocupa todo el ancho */
+}
+
+.btn-login-next:hover {
+  background-color: #F4B400;
+  color: #0B234F;
+}
+
+.carousel-caption h2 {
+  font-size: 3rem; /* Aumenta según lo necesites */
+  font-weight: 700; /* Ya tienes fw-bold, pero por si acaso */
+  text-shadow: 2px 2px 6px rgba(0,0,0,0.5); /* Para que resalte sobre la imagen */
+}
+
+input[type="date"]:empty::before {
+  content: attr(placeholder);
+  color: #aaa;
+}
+input[type="date"]:focus::before {
+  content: "";
+}

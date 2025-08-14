@@ -122,6 +122,7 @@ class Activities(db.Model):
     def serialize_relationships(self):
         return {
             "id": self.id,
+            "trip_id": self.trip_id,
             "trip_to": self.trip_to.serialize() if self.trip_to else None,
             "title": self.title,
             'date': self.date.strftime("%Y-%m-%d") if self.date else None,
